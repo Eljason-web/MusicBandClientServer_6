@@ -1,4 +1,4 @@
-package org.example.common;
+package org.example.common.model;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -30,7 +30,7 @@ public class MusicBandCollection implements Serializable {
         this.initializationDate = LocalDateTime.now();
     }
 
-    public LocalDateTime getInitializationDate(){
+    public LocalDateTime getInitializationDate() {
         return initializationDate;
     }
 
@@ -38,14 +38,12 @@ public class MusicBandCollection implements Serializable {
         return musicBandLinkedHashMap;
     }
 
-    public int size(){
+    public int size() {
         return musicBandLinkedHashMap.size();
     }
 
     public String findKeyById(int id) {
         for (Map.Entry<String, MusicBand> entry : musicBandLinkedHashMap.entrySet()) {
-            String key = entry.getKey();
-            MusicBand band = entry.getValue();
 
             if (entry.getValue() != null && entry.getValue().getId().equals(id)) {
                 return entry.getKey();
@@ -54,29 +52,30 @@ public class MusicBandCollection implements Serializable {
         return null;
     }
 
-    public MusicBand getBandById(int id){
+    public MusicBand getBandById(int id) {
         String key = findKeyById(id);
         return (key != null) ? musicBandLinkedHashMap.get(key) : null;
     }
-    public MusicBand getMusicBandByKey(String key){
+
+    public MusicBand getMusicBandByKey(String key) {
         return musicBandLinkedHashMap.get(key);
     }
 
-    public void addToCollection(String key, MusicBand musicBand){
+    public void addToCollection(String key, MusicBand musicBand) {
         musicBandLinkedHashMap.put(key, musicBand);
         sortCollection();
     }
 
-    public void removeMusicBand(String key){
+    public void removeMusicBand(String key) {
         musicBandLinkedHashMap.remove(key);
     }
 
-    public void clearCollection(){
+    public void clearCollection() {
         musicBandLinkedHashMap.clear();
     }
 
-    public boolean updateByKey(String key, MusicBand updatedBand){
-        if(!musicBandLinkedHashMap.containsKey(key)) {
+    public boolean updateByKey(String key, MusicBand updatedBand) {
+        if (!musicBandLinkedHashMap.containsKey(key)) {
             return false;
         }
         MusicBand existing = musicBandLinkedHashMap.get(key);
@@ -87,7 +86,7 @@ public class MusicBandCollection implements Serializable {
         return true;
     }
 
-    public void sortCollection(){
+    public void sortCollection() {
         List<Map.Entry<String, MusicBand>> sortedEntries = musicBandLinkedHashMap.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.comparingInt(MusicBand::getId)))
@@ -95,7 +94,7 @@ public class MusicBandCollection implements Serializable {
 
         clearCollection();
 
-        for(Map.Entry<String, MusicBand> entry : sortedEntries) {
+        for (Map.Entry<String, MusicBand> entry : sortedEntries) {
             musicBandLinkedHashMap.put(entry.getKey(), entry.getValue());
         }
 

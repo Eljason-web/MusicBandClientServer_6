@@ -1,7 +1,11 @@
 package org.example.client;
 
-import org.example.common.Command;
-import org.example.common.Response;
+import org.example.client.network.ClientNetwork;
+import org.example.client.ui.QueryReader;
+import org.example.client.ui.ResponseHandler;
+import org.example.client.util.RandomBandGenerator;
+import org.example.common.command.Command;
+import org.example.common.command.Response;
 
 import java.io.IOException;
 
@@ -17,9 +21,11 @@ public class ClientMain {
 
         ClientNetwork network = null;
         QueryReader queryReader = null;
-        ResponseHandler responseHandler = null;
+        ResponseHandler responseHandler;
 
-        try{
+
+
+        try {
             network = new ClientNetwork(SERVER_HOST, SERVER_PORT);
             queryReader = new QueryReader();
             responseHandler = new ResponseHandler();
@@ -30,14 +36,23 @@ public class ClientMain {
 
             while (true){
                 Command command= queryReader.readCommand();
-
-                if (command == null) {
-                    continue;
-                }
-
-                if ("exit".equals(command.getCommandType())) {
-                    System.out.println(" Goodbye!");
+                if (command == null) continue;
+                if ("exit".equals(command.getCommandType()))
                     break;
+
+                if ("add_random".equals(command.getCommandType())) {
+                    try {
+                        int count = Integer.parseInt(command.getArgument());
+                        if (count <= 0) {
+                            System.out.println(" Number must be > 0");
+                            continue;
+                        }
+
+                        RandomBandGenerator.generateAndSend(count, network);
+                    } catch (NumberFormatException e) {
+                        System.out.println(" Usage: add_random <number>");
+                    }
+                    continue;
                 }
 
                 Response response = network.sendCommand(command);
@@ -51,7 +66,7 @@ public class ClientMain {
             try {
                 if (network != null) network.close();
                 if (queryReader != null) queryReader.close();
-            }catch (IOException e) {
+            } catch (IOException ignored) {
 
             }
         }

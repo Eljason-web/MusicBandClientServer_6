@@ -1,10 +1,13 @@
-package org.example.common;
+package org.example.common.model;
+
+import org.example.common.enums.MusicGenre;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class MusicBand implements Comparable<org.example.common.MusicBand>, Serializable {
+@SuppressWarnings("unused")
+public class MusicBand implements Comparable<MusicBand>, Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
 

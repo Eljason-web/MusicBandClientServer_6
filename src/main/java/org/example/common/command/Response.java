@@ -1,9 +1,14 @@
-package org.example.common;
+package org.example.common.command;
 
+import org.example.common.model.MusicBand;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class Response implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private boolean success;

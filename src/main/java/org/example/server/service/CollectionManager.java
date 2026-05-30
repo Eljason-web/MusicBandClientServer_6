@@ -1,8 +1,9 @@
-package org.example.server;
+package org.example.server.service;
 
-import org.example.common.MusicBand;
-import org.example.common.MusicBandCollection;
-import org.example.common.MusicGenre;
+import org.example.common.model.MusicBand;
+import org.example.common.model.MusicBandCollection;
+import org.example.common.enums.MusicGenre;
+import org.example.server.io.JsonFileHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,8 +81,13 @@ public class CollectionManager {
         if (collection.getMusicBandLinkedHashMap().containsKey(key)) {
             return "❌ Error: Band with key '" + key + "' already exists";
         }
-
         if (band == null) return " Error: Element data cannot be null";
+
+        int nextId = collection.getMusicBandLinkedHashMap().values().stream()
+                .mapToInt(b -> b.getId() != null ? b.getId() : 0)
+                .max()
+                .orElse(0) + 1;
+        band.setId(nextId);
 
         collection.getMusicBandLinkedHashMap().put(key, band);
         return " Music band has band added with the key " + key;
@@ -142,13 +148,13 @@ public class CollectionManager {
 
     public String findKeyById(int id) {
         return collection.getMusicBandLinkedHashMap().entrySet().stream()
-                .filter(entry -> entry.getValue().getId() == id)
+                .filter(entry -> {
+                    Integer bandID = entry.getValue().getId();
+                    return bandID != null && bandID == id;
+                })
                 .map(Map.Entry::getKey)
                 .findFirst()
                 .orElse(null);
     }
 
-    public MusicBandCollection getCollection() {
-        return collection;
-    }
 }

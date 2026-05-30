@@ -1,7 +1,7 @@
-package org.example.server;
+package org.example.server.io;
 
 import com.google.gson.*;
-import org.example.common.MusicBand;
+import org.example.common.model.MusicBand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
@@ -19,25 +18,13 @@ public class JsonFileHandler {
 
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
-            .registerTypeAdapter(LocalDateTime.class, new JsonSerializer<LocalDateTime>() {
-                @Override
-                public JsonElement serialize(LocalDateTime src,Type typeOfSrc,JsonSerializationContext context) {
-                    return new JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-                }
-            })
-            .registerTypeAdapter(LocalDateTime.class, new JsonDeserializer<LocalDateTime>(){
-                @Override
-                public LocalDateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                        throws JsonParseException {
-                    return LocalDateTime
-                            .parse(json.getAsString(), DateTimeFormatter
-                                    .ISO_DATE_TIME);
-                }
-            })
+            .registerTypeAdapter(LocalDateTime.class, (JsonSerializer<LocalDateTime>) (src, typeOfSrc, context) -> new JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+            .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (json, typeOfT, context) -> LocalDateTime
+                    .parse(json.getAsString(), DateTimeFormatter
+                            .ISO_DATE_TIME))
             .create();
 
     private static final String DATE_FIELD = "initializationDate";
-    private static final String BANDS_FIELD = "bands";
 
     public static LoadResult loadCollection(String filePath) {
         File file = new File(filePath);

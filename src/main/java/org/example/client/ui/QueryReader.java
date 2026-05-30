@@ -1,6 +1,12 @@
-package org.example.client;
-import org.example.common.*;
+package org.example.client.ui;
+import org.example.common.command.Command;
+import org.example.common.enums.MusicGenre;
+import org.example.common.model.Album;
+import org.example.common.model.Coordinates;
+import org.example.common.model.MusicBand;
+
 import java.time.LocalDateTime;
+
 import java.util.Scanner;
 
 public class QueryReader {
@@ -20,10 +26,11 @@ public class QueryReader {
         return parseCommand(input);
     }
 
+    String key = null;
+
     public Command parseCommand(String input) {
         String[] parts = input.trim().split("\\s+", 2);
         String commandType = parts[0].toLowerCase();
-        Command command = new Command(commandType);
         String argument = (parts.length > 1) ? parts[1].trim() : null;
 
         try{
@@ -35,43 +42,59 @@ public class QueryReader {
                 case "exit":
                 case "save":
                 case "print_field_descending_number_of_participants":
-                    return command;
+                    return new Command(commandType);
 
                 case "remove_key":
-                    String key = parts.length > 1 ? parts[1] : null;
+                    key = parts.length > 1 ? parts[1] : null;
                     return new Command("remove_key", key, null, null,0);
                 case "remove_greater_key":
                     if (argument == null || argument.isEmpty()) {
-                        System.out.println(" Error: Key required. Usage: " + commandType + " <key>");
+                        System.out.println(" Error: Key required.");
                         return null;
                     }
-                    command.setKey(argument);
-                    return command;
+                    Command commandRGK = new Command(commandType);
+                    commandRGK.setKey(argument);
+                    return commandRGK;
 
                 case "update":
-                    return parseUpdateCommand(argument, command);
+                    return parseUpdateCommand(argument);
                 case "insert":
-                    return parseInsertCommand(argument, command);
+                     key = parts.length > 1 ? parts[1].trim() : null;
+                    if (key == null) {
+                        System.out.println(" Usage: insert <key>");
+                        return null;
+                    }
+                    BandInsertInteractive validator = new BandInsertInteractive(scanner);
+                    MusicBand band = validator.buildBandInteractively();
+                    if (band == null) return null;
+                    return new Command("insert", key, band, null,0);
+
+                case "add_random": {
+                    if (argument == null || argument.isEmpty()) {
+                        System.out.println(" Usage: add_random <number>");
+                        return null;
+                    }
+                    Command command = new Command("add_random");
+                    command.setArgument(argument);
+                    return command;
+                }
+
                 case "replace_if_lower":
-                    return parseReplaceIfLowerCommand(argument, command);
+                    return parseReplaceIfLowerCommand(argument);
 
                 case "remove_greater":
-                    return parseElementCommand(argument, command);
+                    return parseElementCommand(argument);
                 case "count_greater_than_description":
                 case "filter_less_than_genre":
                     if (argument == null || argument.isEmpty()) {
-                        System.out.println(" Error: Argument required. Usage: " + commandType + " <value>");
+                        System.out.println(" Error: Argument required.");
                         return null;
                     }
-                    command.setArgument(argument);
-                    return command;
-//                    System.out.println(" Error: 'save' command: '" + commandType + "'");
-//                    System.out.println("Type 'help' to see available commands");
-//                    return null;
-
+                    Command commandArg = new Command(commandType);
+                    commandArg.setArgument(argument);
+                    return commandArg;
                 default:
                     System.out.println(" Unknown command: '" + commandType + "'");
-                    System.out.println(" Type 'help' to see available commands");
                     return null;
             }
         }catch (Exception e){
@@ -79,160 +102,126 @@ public class QueryReader {
             return null;
         }
     }
-    private Command parseUpdateCommand(String argument, Command command) {
+
+
+    private Command parseUpdateCommand(String argument) {
         if (argument == null || argument.isEmpty()) {
-            System.out.println(" Error: Usage: update <id> {name:...,genre:...,member:...}");
+            System.out.println(" Error: Usage: update <id> {element}");
             return null;
         }
 
         int braceIndex = argument.indexOf('{');
         if (braceIndex == -1){
-            System.out.println(" Error: Invalid format. Expected: update <id> {element}");
+            System.out.println(" Error: Invalid format.");
             return null;
         }
 
         String idStr = argument.substring(0, braceIndex).trim();
+        Command command = new Command("update");
         try {
             command.setId(Integer.parseInt(idStr));
         } catch (NumberFormatException e) {
             System.out.println(" Error: ID must be a valid integer");
             return null;
         }
-        String elementStr = argument.substring(braceIndex);
-        MusicBand band = parseMusicBand(elementStr);
+        MusicBand band = parseMusicBand(argument.substring(braceIndex));
         if (band == null) return null;
-
         command.setMusicBand(band);
         return command;
     }
 
-    private Command parseInsertCommand(String argument, Command command) {
+    private Command parseReplaceIfLowerCommand(String argument) {
         if (argument == null || argument.isEmpty()) {
-            System.out.println(" Error: Usage: insert <key> {name:...,genre:...,members:...}");
-            return null;
-        }
-
-        int braceIndex = argument.indexOf('{');
-        if (braceIndex == -1){
-            System.out.println(" Error: Invalid format. Expected: replace_if_lower <key> {element}");
-            return null;
-        }
-
-        String key = argument.substring(0, braceIndex).trim();
-        command.setKey(key);
-
-        String elementStr = argument.substring(braceIndex);
-        MusicBand band = parseMusicBand(elementStr);
-        if (band == null) return null;
-
-        command.setMusicBand(band);
-        return command;
-    }
-
-    private Command parseReplaceIfLowerCommand(String argument, Command command) {
-        if (argument == null || argument.isEmpty()) {
-            System.out.println(" Error: Usage: replace_if_lower <key> {name:...,genre:...,members:...}");
+            System.out.println(" Error: Usage: replace_if_lower <key> {element}");
             return null;
         }
 
         int braceIndex = argument.indexOf("{");
         if (braceIndex == -1) {
-            System.out.println(" Error: Invalid format. Expected: replace_if_lower <key> {element}");
+            System.out.println(" Error: Invalid format.");
             return null;
         }
 
-        String key = argument.substring(0, braceIndex).trim();
-        command.setKey(key);
-
-        String elementStr = argument.substring(braceIndex);
-        MusicBand band = parseMusicBand(elementStr);
+        Command command = new Command("replace_if_lower");
+        command.setKey(argument.substring(0, braceIndex).trim());
+        MusicBand band = parseMusicBand(argument.substring(braceIndex));
         if (band == null) return null;
-
         command.setMusicBand(band);
         return command;
     }
 
-    private Command parseElementCommand(String argument, Command command) {
+    private Command parseElementCommand(String argument) {
         if (argument == null || argument.isEmpty()) {
-            System.out.println(" Error: Usage: remove_greater {name:...,genre:...,members:...}");
+            System.out.println(" Error: Usage: remove_greater {element}");
             return null;
         }
 
         MusicBand band = parseMusicBand(argument);
         if (band == null) return null;
-
+        Command command = new Command("remove_greater");
         command.setMusicBand(band);
         return command;
     }
 
     private MusicBand parseMusicBand(String input) {
-
         String content = input.trim();
         if (content.startsWith("{")) content = content.substring(1);
         if (content.endsWith("}")) content = content.substring(0, content.length() - 1);
         content = content.trim();
 
-        if (content.isEmpty()) {
-            System.out.println(" Error: Empty element data");
-            return null;
-        }
+        if (content.isEmpty()) return null;
+
 
         String name = "Unknown";
         MusicGenre genre = MusicGenre.ROCK;
         int member = 1;
         int year = 0;
 
-        String[] pairs = content.split(",");
-        for (String pair : pairs) {
+
+        for (String pair : content.split(",")) {
             String[] kv = pair.split(":", 2);
             if (kv.length != 2) continue;
-
             String key = kv[0].trim().toLowerCase();
             String value = kv[1].trim();
-
             switch (key) {
                 case "name":
                     name = value;
-                    break;
+                break;
                 case "genre":
                     try {
                         genre = MusicGenre.valueOf(value.toUpperCase());
-                    } catch (IllegalArgumentException e) {
-                        System.out.println(" Invalid genre: '" + value + "'");
-                        System.out.println(" Valid genres: " + java.util.Arrays.toString(MusicGenre.values()));
-                        return null;
-                    }
+                    } catch (Exception e) {
+                        return null;}
                     break;
                 case "members":
                 case "member":
                     try {
                         member = Integer.parseInt(value);
-                    } catch (NumberFormatException e) {
-                        System.out.println(" Error: members must be a number");
+                    } catch (Exception e) {
                         return null;
                     } break;
                 case "year":
                     try {
                         year = Integer.parseInt(value);
-                    } catch (NumberFormatException e) {
-                        System.out.println(" Error: year must be a number");
+                    } catch (Exception e) {
                         return null;
                     }
                     break;
             }
         }
 
-        return new MusicBand(
+        MusicBand band = new MusicBand(
                 null,
                 name,
-                new Coordinates(0.0, (float) 0.0f),
+                new Coordinates(0.0,  0L),
                 LocalDateTime.now(),
-                member,
-                0,
-                "Description",
+                member, 0,
+                "Auto-generated",
                 genre,
                 new Album("Album", 1L)
         );
+        band.setYear(year);
+        return band;
     }
 
     public void close() {

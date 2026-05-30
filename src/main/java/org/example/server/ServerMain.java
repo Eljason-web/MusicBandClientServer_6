@@ -1,7 +1,11 @@
 package org.example.server;
 
-import org.example.common.Command;
-import org.example.common.Response;
+import org.example.common.command.Command;
+import org.example.common.command.Response;
+import org.example.server.handler.CommandProcessor;
+import org.example.server.network.ConnectionReceiver;
+import org.example.server.network.ResponseSender;
+import org.example.server.service.CollectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,22 +19,21 @@ public class ServerMain {
 
     public static void main(String[] args) {
         logger.info(" Music Band Server Starting...");
-        logger.info("Port: {}" , PORT);
+        logger.info("Port: {}", PORT);
         logger.info("Data File: {}", DATA_FILE);
         logger.info("Mode: Single-thread, UDP, Non-blocking");
 
         CollectionManager collectionManager = null;
         ConnectionReceiver receiver = null;
-        ResponseSender sender = null;
-        CommandProcessor processor = null;
+        ResponseSender sender;
+        CommandProcessor processor;
 
         try {
-             collectionManager = new CollectionManager();
-             receiver = new ConnectionReceiver(PORT);
-             sender = new ResponseSender(receiver.getChannel());
-             processor = new CommandProcessor(collectionManager, DATA_FILE);
-             collectionManager.loadCollection(DATA_FILE);
-
+            collectionManager = new CollectionManager();
+            receiver = new ConnectionReceiver(PORT);
+            sender = new ResponseSender(receiver.getChannel());
+            processor = new CommandProcessor(collectionManager);
+            collectionManager.loadCollection(DATA_FILE);
 
             logger.info(" Server Ready! Waiting for client connections...");
 
@@ -43,10 +46,10 @@ public class ServerMain {
                 }
 
                 logger.info(" Receiver request: {} from client",
-                        received.getCommand().getCommandType());
+                        received.command().getCommandType());
 
-                Command command = received.getCommand();
-                var clientAddress = received.getClientAddress();
+                Command command = received.command();
+                var clientAddress = received.clientAddress();
 
 
                 Response response = processor.processCommand(command);
@@ -61,13 +64,13 @@ public class ServerMain {
 
         } catch (IOException e) {
             logger.error("❌ Network Error: {}", e.getMessage(), e);
-            logger.error(" Hint: Is Port {} already in use?" , PORT);
+            logger.error(" Hint: Is Port {} already in use?", PORT);
 
-        }catch (ClassNotFoundException e) {
-            logger.error("❌ Deserialization Error: {}" , e.getMessage(), e);
+        } catch (ClassNotFoundException e) {
+            logger.error("❌ Deserialization Error: {}", e.getMessage(), e);
             logger.error("Hint: Are Command/Response classes Serializable?");
 
-        }catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             logger.warn(" Server interrupted");
             Thread.currentThread().interrupt();
 

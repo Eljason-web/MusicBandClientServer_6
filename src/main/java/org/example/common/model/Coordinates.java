@@ -1,8 +1,8 @@
-package org.example.common;
+package org.example.common.model;
 
 import java.io.Serial;
 import java.io.Serializable;
-
+@SuppressWarnings("unused")
 public class Coordinates implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;

@@ -1,4 +1,6 @@
-package org.example.common;
+package org.example.common.command;
+
+import org.example.common.model.MusicBand;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -11,7 +13,7 @@ public class Command implements Serializable {
     private String key;
     private MusicBand musicBand;
     private String argument;
-    private int id;
+    private Integer id;
 
     public Command(String commandType, String key, MusicBand musicBand, String argument, Integer id) {
         this.commandType = commandType;
@@ -33,6 +35,7 @@ public class Command implements Serializable {
         return commandType;
     }
 
+    @SuppressWarnings("unused")
     public void setCommandType(String commandType) {
         this.commandType = commandType;
     }
@@ -61,11 +64,11 @@ public class Command implements Serializable {
         this.argument = argument;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

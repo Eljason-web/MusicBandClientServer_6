@@ -1,6 +1,6 @@
-package org.example.server;
+package org.example.server.network;
 
-import org.example.common.Response;
+import org.example.common.command.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,4 @@ public class ResponseSender {
         logger.info(" Sent response to client");
     }
 
-    public void close() throws IOException {
-        System.out.println(" Response Sender closed");
-    }
 }

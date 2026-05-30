@@ -1,6 +1,6 @@
-package org.example.server;
+package org.example.server.network;
 
-import org.example.common.Command;
+import org.example.common.command.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,10 +15,8 @@ public class ConnectionReceiver {
     private  static final Logger logger = LoggerFactory.getLogger(ConnectionReceiver.class);
 
     private final DatagramChannel channel;
-    private final int port;
 
     public ConnectionReceiver(int port) throws IOException {
-        this.port = port;
         this.channel = DatagramChannel.open();
         this.channel.configureBlocking(false);
         this.channel.bind(new InetSocketAddress(port));
@@ -45,7 +43,7 @@ public class ConnectionReceiver {
         ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
         Command command = (Command) objectInputStream.readObject();
 
-        logger.info(" Received command: " + command.getCommandType());
+        logger.info(" Received command: {}", command.getCommandType());
 
         return  new ReceivedCommand(command, clientAddress);
     }
@@ -59,22 +57,7 @@ public class ConnectionReceiver {
         return channel;
     }
 
-    public static  class ReceivedCommand {
-        private final Command command;
-        private final SocketAddress clientAddress;
-
-        public ReceivedCommand(Command command, SocketAddress clientAddress) {
-            this.command = command;
-            this.clientAddress = clientAddress;
-        }
-
-        public Command getCommand() {
-            return command;
-        }
-
-        public SocketAddress getClientAddress() {
-            return clientAddress;
-        }
+    public record ReceivedCommand(Command command, SocketAddress clientAddress) {
     }
 
 }

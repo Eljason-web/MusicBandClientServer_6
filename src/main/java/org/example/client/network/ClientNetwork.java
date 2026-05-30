@@ -1,7 +1,7 @@
-package org.example.client;
+package org.example.client.network;
 
-import org.example.common.Command;
-import org.example.common.Response;
+import org.example.common.command.Command;
+import org.example.common.command.Response;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -39,7 +39,6 @@ public class ClientNetwork {
             ByteBuffer buffer = ByteBuffer.wrap(data);
 
             channel.send(buffer, new InetSocketAddress(serverAddress, serverPort));
-
             channel.configureBlocking(true);
             channel.socket().setSoTimeout(TIMEOUT_MS);
 
@@ -56,7 +55,6 @@ public class ClientNetwork {
             return (Response) objectInputStream.readObject();
 
         } catch (SocketTimeoutException e) {
-
             return new Response(false, " Error: Server not available. Please try again later.");
         } catch (IOException | ClassNotFoundException e) {
             return new Response(false, " Network error: " + e.getMessage());
@@ -64,7 +62,7 @@ public class ClientNetwork {
         } finally {
             try {
                 channel.configureBlocking(false);
-            } catch (IOException e){
+            } catch (IOException ignored){
 
             }
         }

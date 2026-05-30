@@ -1,4 +1,4 @@
-package org.example.common;
+package org.example.common.enums;
 
 import java.io.Serializable;
 
@@ -11,5 +11,5 @@ public enum MusicGenre implements Serializable {
     PSYCHEDELIC_CLOUD_RAP,
     SOUL,
     POST_PUNK,
-    RAGGAE;
+    RAGGAE
 }
