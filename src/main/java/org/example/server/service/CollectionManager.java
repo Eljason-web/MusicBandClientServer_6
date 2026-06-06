@@ -112,7 +112,7 @@ public class CollectionManager {
             return " Error: No band found with key '" + key + "'";
         }
         collection.getMusicBandLinkedHashMap().remove(key);
-        return "✅ Music band with key" + key +  "has been removed successfully";
+        return "✅ Music band with key " + key +  " has been removed successfully ";
     }
 
     public String replaceIfLower(String key, MusicBand newBand) {

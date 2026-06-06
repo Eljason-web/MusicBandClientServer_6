@@ -15,13 +15,13 @@ public class ClientNetwork {
     private final DatagramChannel channel;
     private final InetAddress serverAddress;
     private final int serverPort;
-    private static final int TIMEOUT_MS = 5000;
+    private static final int TIMEOUT_MS = 15000;
+    private static final int MAX_BUFFER_SIZE = 65535;
 
     public ClientNetwork(String serverHost, int serverPort) throws IOException {
 
         this.serverAddress = InetAddress.getByName(serverHost);
         this.serverPort = serverPort;
-
         this.channel = DatagramChannel.open();
         this.channel.bind(null);
         System.out.println(" Client connected to " + serverHost + ":" + serverPort);
@@ -29,47 +29,72 @@ public class ClientNetwork {
 
     public Response sendCommand (Command command){
         try {
-
+            boolean isSuccess = true;
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
             objectOutputStream.writeObject(command);
-            objectOutputStream.flush();
-
-            byte[] data = byteArrayOutputStream.toByteArray();
-            ByteBuffer buffer = ByteBuffer.wrap(data);
-
+            ByteBuffer buffer = ByteBuffer.wrap(byteArrayOutputStream.toByteArray());
             channel.send(buffer, new InetSocketAddress(serverAddress, serverPort));
+
             channel.configureBlocking(true);
             channel.socket().setSoTimeout(TIMEOUT_MS);
 
-            ByteBuffer receiveBuffer = ByteBuffer.allocate(65535);
-            channel.receive(receiveBuffer);
-            receiveBuffer.flip();
+            StringBuilder fullMessage = new StringBuilder();
+            int expectedChunks = 1;
+            int receivedChunks = 0;
 
-            byte[] responseData = new byte[receiveBuffer.remaining()];
-            receiveBuffer.get(responseData);
 
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(responseData);
-            ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+            while (receivedChunks < expectedChunks) {
+                ByteBuffer receiveBuffer = ByteBuffer.allocate(MAX_BUFFER_SIZE);
+                channel.receive(receiveBuffer);
+                receiveBuffer.flip();
 
-            return (Response) objectInputStream.readObject();
+                byte[] data = new byte[receiveBuffer.remaining()];
+                receiveBuffer.get(data);
+
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(data);
+                ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+                Response response = (Response) objectInputStream.readObject();
+
+                String message = response.getMessage();
+                if (message != null && message.startsWith("CHUNK:")) {
+                    int pipeIndex = message.indexOf('|');
+                    String header = message.substring(0, pipeIndex);
+                    String payload = message.substring(pipeIndex + 1);
+
+                    String[] parts = header.split(":")[1].split("/");
+                    expectedChunks = Integer.parseInt(parts[1]);
+                    receivedChunks = Integer.parseInt(parts[0]);
+
+                    fullMessage.append(payload);
+                    if (receivedChunks == 1) {
+                        isSuccess = response.isSuccess();
+                    }
+                } else {
+                    fullMessage.append(message != null ? message : "");
+                    receivedChunks = 1;
+                    expectedChunks = 1;
+                }
+            }
+
+            return new Response(isSuccess, fullMessage.toString());
 
         } catch (SocketTimeoutException e) {
-            return new Response(false, " Error: Server not available. Please try again later.");
+            return new Response(false, " Error: Server timeout during chunk reception");
         } catch (IOException | ClassNotFoundException e) {
             return new Response(false, " Network error: " + e.getMessage());
-
         } finally {
             try {
                 channel.configureBlocking(false);
-            } catch (IOException ignored){
-
-            }
+            } catch (IOException ignored){}
         }
     }
 
-    public void close() throws IOException{
-        channel.close();
+    public void close() throws IOException {
+        if (channel != null && channel.isOpen()) {
+            channel.close();
+        }
         System.out.println(" Client network closed");
     }
+
 }

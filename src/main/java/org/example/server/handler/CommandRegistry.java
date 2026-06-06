@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CommandRegistry {
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CommandRegistry.class);
 
     public record CommandEntry(CommandHandler handler, String description) {}
 
@@ -25,11 +26,9 @@ public class CommandRegistry {
         registry.put("help", new CommandEntry(
                 (manager, cmd) -> new Response(true, getHelpMessage()),
                 "Display help on available commands"));
-
         registry.put("info", new CommandEntry(
                 (manager, cmd) -> new Response(true, manager.getInfo()),
                 "Print collection information"));
-
         registry.put("show", new CommandEntry(
                 (manager, cmd) -> {
                     var bands = manager.getSortedCollection();
@@ -37,32 +36,49 @@ public class CommandRegistry {
                 },
                 "Print all elements of the collection"
         ));
-
         registry.put("clear", new CommandEntry(
                 (manager, cmd) -> new Response(true, manager.clear()),
                 "Clear collection"));
-
         registry.put("save", new CommandEntry((manager, cmd) -> {
             manager.saveCollection("bands.json");
             return new Response(true, "Collection to save: bands.json");
         },"Save collection to file (server-only)"));
-
         registry.put("insert", new CommandEntry(
                 (manager, cmd) -> new Response(true, manager.insert(cmd.getKey(), cmd.getMusicBand())),
                 "Add a new element with the given key"));
+        registry.put("add_random", new CommandEntry(
+            (manager, command) -> {
+                try {
+                    int count = Integer.parseInt(command.getArgument());
+                    if (count <= 0) {
+                        return new Response(false, "Error: Number must be > 0");
+                    }
 
+                    for (int i = 0; i < count; i++) {
+                        String key = "rand_" + i + "_" + System.currentTimeMillis() + "_" +
+                                    java.util.UUID.randomUUID().toString().substring(0, 4);
+                        MusicBand band = generateRandomBand();
+                        manager.insert(key, band);
+                    }
+
+                    return new Response(true, " Successfully added " + count + " band(s).");
+                } catch (NumberFormatException e) {
+                    return new Response(false, "Error: Invalid number format");
+                } catch (Exception e) {
+                    return new Response(false, "Error: Failed to generate bands");
+                }
+            },
+                "Add n random music bands to the collection"
+            ));
         registry.put("update", new CommandEntry(
                 (manager,cmd) -> new Response(true, manager.update(cmd.getId(), cmd.getMusicBand())),
                 "Update element by ID"));
-
         registry.put("remove_key", new CommandEntry(
                 (manager, cmd) -> new Response(true, manager.removeKey(cmd.getKey())),
                 "Remove element by key"));
-
         registry.put("replace_if_lower", new CommandEntry(
                 (manager, cmd) -> new Response(true, manager.replaceIfLower(cmd.getKey(),cmd.getMusicBand())),
                 "Replace if new value is less"));
-
         registry.put("remove_greater", new CommandEntry(
                 (manager, cmd) -> {
                     var removed = manager.removeGreater(cmd.getMusicBand());
@@ -76,7 +92,6 @@ public class CommandRegistry {
                     return new Response(true, "Removed " + removed.size() + " band(s) with key greater than '" + cmd.getKey() + "'", removed);
                 },
                 "Remove elements with key greater than given"));
-
         registry.put("count_greater_than_description", new CommandEntry(
                 (manager, cmd) -> {
                     String desc = cmd.getArgument();
@@ -84,7 +99,6 @@ public class CommandRegistry {
                     return new Response(true,"Number of bands with description greater than '" + desc + "': " + count);
                 },
                 "Count elements with description greater"));
-
         registry.put("filter_less_than_genre", new CommandEntry(
                 (manager, cmd) -> {
                     try {
@@ -98,7 +112,6 @@ public class CommandRegistry {
                 },
                 "Display elements with genre less than specified"
         ));
-
         registry.put("print_field_descending_number_of_participants", new CommandEntry(
                 (manager, cmd) -> {
                     var bands = manager.getBandsByParticipantsDescending();
@@ -148,5 +161,37 @@ public class CommandRegistry {
     public CommandHandler getHandler(String commandName) {
         CommandEntry entry = registry.get(commandName);
         return entry != null ? entry.handler() : null;
+    }
+
+    private MusicBand generateRandomBand() {
+        java.util.Random random = new java.util.Random();
+
+        String name = "Band_" + random.nextInt(10000);
+        String desc = "Auto-generated band";
+        var coordinates = new org.example.common.model.Coordinates(
+                random.nextDouble() * 1000,
+                (long)random.nextInt(10000)
+        );
+        var genre = org.example.common.enums.MusicGenre.values()[
+                random.nextInt(MusicGenre.values().length)
+        ];
+        int members = random.nextInt(49) + 1;
+        int year = random.nextInt(75) + 1950;
+        var album = new org.example.common.model.Album(
+                "Album_" + random.nextInt(500),
+                (long) (random.nextInt(190) + 10)
+        );
+
+        var band = new org.example.common.model.MusicBand();
+        band.setName(name);
+        band.setDescription(desc);
+        band.setCoordinates(coordinates);
+        band.setGenre(genre);
+        band.setNumberOfParticipants(members);
+        band.setYear(year);
+        band.setBestAlbum(album);
+        band.setCreationDate(java.time.LocalDateTime.now());
+
+        return band;
     }
 }

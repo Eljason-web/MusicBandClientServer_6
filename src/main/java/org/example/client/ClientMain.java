@@ -2,8 +2,7 @@ package org.example.client;
 
 import org.example.client.network.ClientNetwork;
 import org.example.client.ui.QueryReader;
-import org.example.client.ui.ResponseHandler;
-import org.example.client.util.RandomBandGenerator;
+import org.example.client.ui.ResponseHandler; 
 import org.example.common.command.Command;
 import org.example.common.command.Response;
 
@@ -39,22 +38,6 @@ public class ClientMain {
                 if (command == null) continue;
                 if ("exit".equals(command.getCommandType()))
                     break;
-
-                if ("add_random".equals(command.getCommandType())) {
-                    try {
-                        int count = Integer.parseInt(command.getArgument());
-                        if (count <= 0) {
-                            System.out.println(" Number must be > 0");
-                            continue;
-                        }
-
-                        RandomBandGenerator.generateAndSend(count, network);
-                    } catch (NumberFormatException e) {
-                        System.out.println(" Usage: add_random <number>");
-                    }
-                    continue;
-                }
-
                 Response response = network.sendCommand(command);
                 responseHandler.handleResponse(response);
             }

@@ -175,7 +175,7 @@ public class QueryReader {
         String name = "Unknown";
         MusicGenre genre = MusicGenre.ROCK;
         int member = 1;
-        int year = 0;
+        int year = 2000;
 
 
         for (String pair : content.split(",")) {
@@ -183,30 +183,26 @@ public class QueryReader {
             if (kv.length != 2) continue;
             String key = kv[0].trim().toLowerCase();
             String value = kv[1].trim();
-            switch (key) {
-                case "name":
-                    name = value;
-                break;
-                case "genre":
-                    try {
-                        genre = MusicGenre.valueOf(value.toUpperCase());
-                    } catch (Exception e) {
-                        return null;}
-                    break;
-                case "members":
-                case "member":
-                    try {
-                        member = Integer.parseInt(value);
-                    } catch (Exception e) {
-                        return null;
-                    } break;
-                case "year":
-                    try {
-                        year = Integer.parseInt(value);
-                    } catch (Exception e) {
-                        return null;
-                    }
-                    break;
+
+            try {
+                switch (key) {
+                    case "name":
+                        name = org.example.client.util.MusicBandValidator.parseNonEmpty(value, "Name");
+                        break;
+                    case "genre":
+                        genre = org.example.client.util.MusicBandValidator.parseGenre(value);
+                        break;
+                    case "members":
+                    case "member":
+                        member = org.example.client.util.MusicBandValidator.parsePositiveInt(value, "Members");
+                        break;
+                    case "year":
+                        year = org.example.client.util.MusicBandValidator.parsePositiveInt(value, "Year");
+                        break;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println(" " + e.getMessage());
+                return null;
             }
         }
 
