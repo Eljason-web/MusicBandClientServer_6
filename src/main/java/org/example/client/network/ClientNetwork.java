@@ -15,7 +15,6 @@ public class ClientNetwork {
     private final DatagramChannel channel;
     private final InetAddress serverAddress;
     private final int serverPort;
-    private static final int TIMEOUT_MS = 15000;
     private static final int MAX_BUFFER_SIZE = 65535;
 
     public ClientNetwork(String serverHost, int serverPort) throws IOException {
@@ -29,64 +28,95 @@ public class ClientNetwork {
 
     public Response sendCommand (Command command){
         try {
-            boolean isSuccess = true;
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
             objectOutputStream.writeObject(command);
             ByteBuffer buffer = ByteBuffer.wrap(byteArrayOutputStream.toByteArray());
             channel.send(buffer, new InetSocketAddress(serverAddress, serverPort));
 
-            channel.configureBlocking(true);
-            channel.socket().setSoTimeout(TIMEOUT_MS);
+            channel.socket().setSoTimeout(2000);
 
-            StringBuilder fullMessage = new StringBuilder();
-            int expectedChunks = 1;
-            int receivedChunks = 0;
+            int maxAttempts = 2;
+            Response finalResponse = null;
 
+            for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+                try {
+                    byte[] bufferArray = new byte[MAX_BUFFER_SIZE];
+                    java.net.DatagramPacket packet = new java.net.DatagramPacket(bufferArray, bufferArray.length);
+                    channel.socket().receive(packet);
 
-            while (receivedChunks < expectedChunks) {
-                ByteBuffer receiveBuffer = ByteBuffer.allocate(MAX_BUFFER_SIZE);
-                channel.receive(receiveBuffer);
-                receiveBuffer.flip();
+                    byte[] data = new byte[packet.getLength()];
+                    System.arraycopy(packet.getData(), packet.getOffset(), data, 0, packet.getLength());
 
-                byte[] data = new byte[receiveBuffer.remaining()];
-                receiveBuffer.get(data);
+                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(data);
+                    ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+                    finalResponse = (Response) objectInputStream.readObject();
 
-                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(data);
-                ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
-                Response response = (Response) objectInputStream.readObject();
+                    break;
 
-                String message = response.getMessage();
-                if (message != null && message.startsWith("CHUNK:")) {
-                    int pipeIndex = message.indexOf('|');
-                    String header = message.substring(0, pipeIndex);
-                    String payload = message.substring(pipeIndex + 1);
-
-                    String[] parts = header.split(":")[1].split("/");
-                    expectedChunks = Integer.parseInt(parts[1]);
-                    receivedChunks = Integer.parseInt(parts[0]);
-
-                    fullMessage.append(payload);
-                    if (receivedChunks == 1) {
-                        isSuccess = response.isSuccess();
+                } catch (SocketTimeoutException e) {
+                    if (attempt == maxAttempts) {
+                        return new Response(false, "  Server is unavailable. Please check if it is running.");
                     }
-                } else {
-                    fullMessage.append(message != null ? message : "");
-                    receivedChunks = 1;
-                    expectedChunks = 1;
                 }
             }
 
-            return new Response(isSuccess, fullMessage.toString());
+            if (finalResponse != null && finalResponse.getMessage() != null && finalResponse.getMessage().startsWith("CHUNK:")) {
+                StringBuilder fullMessage = new StringBuilder();
+                int expectedChunks = 1;
+                int receivedChunks = 0;
+                boolean isSuccess = true;
+                String[] chunkBuffer = null;
+
+                channel.socket().setSoTimeout(5000);
+
+                while (receivedChunks < expectedChunks) {
+                    byte[] chunkBufferArray = new byte[MAX_BUFFER_SIZE];
+                    java.net.DatagramPacket chunkPacket = new java.net.DatagramPacket(chunkBufferArray, chunkBufferArray.length);
+                    channel.socket().receive(chunkPacket);
+
+                    byte[] chunkData = new byte[chunkPacket.getLength()];
+                    System.arraycopy(chunkPacket.getData(), chunkPacket.getOffset(), chunkData, 0, chunkPacket.getLength());
+
+                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(chunkData);
+                    ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+                    Response chunkResponse = (Response) objectInputStream.readObject();
+
+                    String message = chunkResponse.getMessage();
+                    if (message != null && message.startsWith("CHUNK:")) {
+                        int pipeIndex = message.indexOf('|');
+                        String header = message.substring(0, pipeIndex);
+                        String payload = message.substring(pipeIndex + 1);
+
+                        String[] parts = header.split(":")[1].split("/");
+                        expectedChunks = Integer.parseInt(parts[1]);
+                        receivedChunks = Integer.parseInt(parts[0]);
+
+                        if (chunkBuffer == null) chunkBuffer = new String[expectedChunks];
+                        chunkBuffer[receivedChunks - 1] = payload;
+
+                        if (receivedChunks == 1) isSuccess = chunkResponse.isSuccess();
+                    } else {
+                        fullMessage.append(message != null ? message : "");
+                        receivedChunks = expectedChunks;
+                    }
+                }
+
+                if (chunkBuffer != null) {
+                    for (String chunk : chunkBuffer) {
+                        if (chunk != null)
+                            fullMessage.append(chunk);
+                    }
+                }
+                return new Response(isSuccess, fullMessage.toString());
+            }
+
+            return finalResponse;
 
         } catch (SocketTimeoutException e) {
             return new Response(false, " Error: Server timeout during chunk reception");
         } catch (IOException | ClassNotFoundException e) {
             return new Response(false, " Network error: " + e.getMessage());
-        } finally {
-            try {
-                channel.configureBlocking(false);
-            } catch (IOException ignored){}
         }
     }
 

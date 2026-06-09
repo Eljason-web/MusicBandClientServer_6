@@ -1,6 +1,5 @@
 package org.example.server;
 
-import org.example.common.command.Command;
 import org.example.common.command.Response;
 import org.example.server.handler.CommandProcessor;
 import org.example.server.network.ConnectionReceiver;
@@ -10,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+@SuppressWarnings("BusyWait")
 
 public class ServerMain {
     private static final Logger logger = LoggerFactory.getLogger(ServerMain.class);
@@ -23,7 +23,7 @@ public class ServerMain {
         logger.info("Data File: {}", DATA_FILE);
         logger.info("Mode: Single-thread, UDP, Non-blocking");
 
-        CollectionManager collectionManager = null;
+        CollectionManager collectionManager;
         ConnectionReceiver receiver = null;
         ResponseSender sender;
         CommandProcessor processor;
@@ -35,31 +35,38 @@ public class ServerMain {
             processor = new CommandProcessor(collectionManager);
             collectionManager.loadCollection(DATA_FILE);
 
+            final CollectionManager managerRef = collectionManager;
+            final ConnectionReceiver receiverRef = receiver;
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                logger.info(" Saving collection before shutdown...");
+                managerRef.saveCollection(DATA_FILE);
+                try {
+                    receiverRef.close();
+                } catch (IOException e) {
+                    logger.warn("Error closing receiver: {}", e.getMessage());
+                }
+                logger.info(" Server terminated. Goodbye!");
+            }));
             logger.info(" Server Ready! Waiting for client connections...");
 
-            while (true) {
+            while (!Thread.currentThread().isInterrupted()) {
                 ConnectionReceiver.ReceivedCommand received = receiver.receiveCommand();
 
                 if (received == null) {
-                    Thread.sleep(50);
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
                     continue;
                 }
 
-                logger.info(" Receiver request: {} from client",
-                        received.command().getCommandType());
+                logger.info(" Receiver request: {} from client", received.command().getCommandType());
 
-                Command command = received.command();
-                var clientAddress = received.clientAddress();
-
-
-                Response response = processor.processCommand(command);
-
-                sender.sendResponse(response, clientAddress);
+                Response response = processor.processCommand(received.command());
+                sender.sendResponse(response, received.clientAddress());
                 logger.info(" Sent response to client");
-
-                if ("save".equals(command.getCommandType()) && response.isSuccess()) {
-                    logger.info(" Collection saved to: {}", DATA_FILE);
-                }
             }
 
         } catch (IOException e) {
@@ -70,17 +77,7 @@ public class ServerMain {
             logger.error("❌ Deserialization Error: {}", e.getMessage(), e);
             logger.error("Hint: Are Command/Response classes Serializable?");
 
-        } catch (InterruptedException e) {
-            logger.warn(" Server interrupted");
-            Thread.currentThread().interrupt();
-
         } finally {
-            logger.info(" Saving collection before shutdown...");
-
-            if (collectionManager != null) {
-                collectionManager.saveCollection(DATA_FILE);
-            }
-
             if (receiver != null) {
                 try {
                     receiver.close();
@@ -88,8 +85,6 @@ public class ServerMain {
                     logger.warn(" Error closing receiver: {}", e.getMessage());
                 }
             }
-
-            logger.info(" Server terminated. Goodbye!");
         }
     }
 }

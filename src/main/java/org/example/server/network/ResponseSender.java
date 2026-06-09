@@ -1,6 +1,8 @@
 package org.example.server.network;
 
 import org.example.common.command.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,7 +13,9 @@ import java.nio.channels.DatagramChannel;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings({"BusyWait",})
 public class ResponseSender {
+    private static final Logger logger = LoggerFactory.getLogger(ResponseSender.class);
     private final DatagramChannel channel;
     private static final int MAX_CHUNK_SIZE = 3000;
 
@@ -54,7 +58,7 @@ public class ResponseSender {
             ByteBuffer buffer = ByteBuffer.wrap(byteArrayOutputStream.toByteArray());
             channel.send(buffer, address);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Failed to send packet to {}: {}", address, e.getMessage());
         }
     }
 }

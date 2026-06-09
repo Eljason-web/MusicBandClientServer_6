@@ -42,16 +42,16 @@ public class ClientMain {
                 responseHandler.handleResponse(response);
             }
 
-        } catch (IOException e) {
-            System.err.println(" Client Error: " + e.getMessage());
+        } catch (IOException mainError) {
+            System.err.println(" Client Error: " + mainError.getMessage());
             System.err.println("Hint: Is the server running on " + SERVER_HOST + ":" + SERVER_PORT + "?");
         } finally {
             try {
                 if (network != null) network.close();
-                if (queryReader != null) queryReader.close();
-            } catch (IOException ignored) {
-
+            }catch (IOException networkError) {
+                System.err.println("Error closing network: " + networkError.getMessage());
             }
+            if (queryReader != null) queryReader.close();
         }
     }
 }

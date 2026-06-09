@@ -4,15 +4,16 @@ import org.example.common.command.Command;
 import org.example.common.model.MusicBand;
 import org.example.common.enums.MusicGenre;
 import org.example.common.command.Response;
+import org.example.common.model.Coordinates;
+import org.example.common.model.Album;
 import org.example.server.service.CollectionManager;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
+
 import java.util.stream.Collectors;
 
 public class CommandRegistry {
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CommandRegistry.class);
-
     public record CommandEntry(CommandHandler handler, String description) {}
 
     public interface CommandHandler {
@@ -56,7 +57,7 @@ public class CommandRegistry {
 
                     for (int i = 0; i < count; i++) {
                         String key = "rand_" + i + "_" + System.currentTimeMillis() + "_" +
-                                    java.util.UUID.randomUUID().toString().substring(0, 4);
+                                    UUID.randomUUID().toString().substring(0, 4);
                         MusicBand band = generateRandomBand();
                         manager.insert(key, band);
                     }
@@ -107,7 +108,7 @@ public class CommandRegistry {
                         return  new Response(true, "Bands with genre less than " + genre, bands);
                     } catch (IllegalArgumentException e) {
                         return new Response(false, " Invalid genre: '" + cmd.getArgument() + "'\nValid genres: " +
-                                java.util.Arrays.toString(MusicGenre.values()));
+                               Arrays.toString(MusicGenre.values()));
                     }
                 },
                 "Display elements with genre less than specified"
@@ -121,7 +122,7 @@ public class CommandRegistry {
         ));
     }
 
-    private String formatTable(java.util.List<MusicBand> bands) {
+    private String formatTable(List<MusicBand> bands) {
         if (bands.isEmpty()) {
             return "Collection Contents\nEmpty collection";
         }
@@ -164,25 +165,29 @@ public class CommandRegistry {
     }
 
     private MusicBand generateRandomBand() {
-        java.util.Random random = new java.util.Random();
+        Random random = new Random();
 
         String name = "Band_" + random.nextInt(10000);
         String desc = "Auto-generated band";
-        var coordinates = new org.example.common.model.Coordinates(
+
+        var coordinates = new Coordinates(
                 random.nextDouble() * 1000,
-                (long)random.nextInt(10000)
-        );
-        var genre = org.example.common.enums.MusicGenre.values()[
-                random.nextInt(MusicGenre.values().length)
-        ];
-        int members = random.nextInt(49) + 1;
-        int year = random.nextInt(75) + 1950;
-        var album = new org.example.common.model.Album(
-                "Album_" + random.nextInt(500),
-                (long) (random.nextInt(190) + 10)
+                random.nextInt(10000)
         );
 
-        var band = new org.example.common.model.MusicBand();
+        var genre = MusicGenre.values()[
+                random.nextInt(MusicGenre.values().length)
+        ];
+
+        int members = random.nextInt(49) + 1;
+        int year = random.nextInt(75) + 1950;
+
+        var album = new Album(
+                "Album_" + random.nextInt(500),
+                (random.nextInt(190) + 10)
+        );
+
+        var band = new MusicBand();
         band.setName(name);
         band.setDescription(desc);
         band.setCoordinates(coordinates);
@@ -190,7 +195,7 @@ public class CommandRegistry {
         band.setNumberOfParticipants(members);
         band.setYear(year);
         band.setBestAlbum(album);
-        band.setCreationDate(java.time.LocalDateTime.now());
+        band.setCreationDate(LocalDateTime.now());
 
         return band;
     }

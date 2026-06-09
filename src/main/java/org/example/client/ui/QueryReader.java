@@ -1,5 +1,6 @@
 package org.example.client.ui;
 import org.example.common.command.Command;
+import org.example.client.util.MusicBandValidator;
 import org.example.common.enums.MusicGenre;
 import org.example.common.model.Album;
 import org.example.common.model.Coordinates;
@@ -187,17 +188,17 @@ public class QueryReader {
             try {
                 switch (key) {
                     case "name":
-                        name = org.example.client.util.MusicBandValidator.parseNonEmpty(value, "Name");
+                        name = MusicBandValidator.parseNonEmpty(value, "Name");
                         break;
                     case "genre":
-                        genre = org.example.client.util.MusicBandValidator.parseGenre(value);
+                        genre = MusicBandValidator.parseGenre(value);
                         break;
                     case "members":
                     case "member":
-                        member = org.example.client.util.MusicBandValidator.parsePositiveInt(value, "Members");
+                        member = MusicBandValidator.parsePositiveInt(value, "Members");
                         break;
                     case "year":
-                        year = org.example.client.util.MusicBandValidator.parsePositiveInt(value, "Year");
+                        year = MusicBandValidator.parsePositiveInt(value, "Year");
                         break;
                 }
             } catch (IllegalArgumentException e) {
