@@ -4120,3 +4120,101 @@ java.net.BindException: Address already in use: bind
 2026-06-09 11:20:59 INFO  org.example.server.ServerMain -  Saving collection before shutdown...
 2026-06-09 11:20:59 INFO  o.example.server.io.JsonFileHandler -  Collection saved to: bands.json
 2026-06-09 11:20:59 INFO  org.example.server.ServerMain -  Server terminated. Goodbye!
+2026-06-15 09:41:56 INFO  org.example.server.ServerMain -  Music Band Server Starting...
+2026-06-15 09:41:56 INFO  org.example.server.ServerMain - Port: 12345
+2026-06-15 09:41:56 INFO  org.example.server.ServerMain - Data File: bands.json
+2026-06-15 09:41:56 INFO  org.example.server.ServerMain - Mode: Single-thread, UDP, Non-blocking
+2026-06-15 09:41:56 INFO  o.e.s.network.ConnectionReceiver -  Connection Receiver listening on port 12345
+2026-06-15 09:41:57 INFO  o.example.server.io.JsonFileHandler -  Loaded 18 bands from: bands.json
+2026-06-15 09:41:57 INFO  o.e.server.service.CollectionManager -  Collection initialized with 18 elements
+2026-06-15 09:41:57 INFO  org.example.server.ServerMain -  Server Ready! Waiting for client connections...
+2026-06-15 09:42:15 INFO  o.e.s.network.ConnectionReceiver -  Received command: add_random
+2026-06-15 09:42:15 INFO  org.example.server.ServerMain -  Receiver request: add_random from client
+2026-06-15 09:42:15 INFO  o.e.server.handler.CommandProcessor - Processing command: add_random
+2026-06-15 09:42:15 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 09:42:20 INFO  o.e.s.network.ConnectionReceiver -  Received command: show
+2026-06-15 09:42:20 INFO  org.example.server.ServerMain -  Receiver request: show from client
+2026-06-15 09:42:20 INFO  o.e.server.handler.CommandProcessor - Processing command: show
+2026-06-15 09:42:20 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 09:43:09 INFO  o.e.s.network.ConnectionReceiver -  Received command: add_random
+2026-06-15 09:43:09 INFO  org.example.server.ServerMain -  Receiver request: add_random from client
+2026-06-15 09:43:09 INFO  o.e.server.handler.CommandProcessor - Processing command: add_random
+2026-06-15 09:43:09 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 09:43:13 INFO  o.e.s.network.ConnectionReceiver -  Received command: show
+2026-06-15 09:43:13 INFO  org.example.server.ServerMain -  Receiver request: show from client
+2026-06-15 09:43:13 INFO  o.e.server.handler.CommandProcessor - Processing command: show
+2026-06-15 09:43:13 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 09:43:38 INFO  org.example.server.ServerMain -  Saving collection before shutdown...
+2026-06-15 09:43:38 INFO  o.example.server.io.JsonFileHandler -  Collection saved to: bands.json
+2026-06-15 09:43:38 INFO  org.example.server.ServerMain -  Server terminated. Goodbye!
+2026-06-15 09:50:47 INFO  org.example.server.ServerMain -  Music Band Server Starting...
+2026-06-15 09:50:47 INFO  org.example.server.ServerMain - Port: 12345
+2026-06-15 09:50:47 INFO  org.example.server.ServerMain - Data File: bands.json
+2026-06-15 09:50:47 INFO  org.example.server.ServerMain - Mode: Single-thread, UDP, Non-blocking
+2026-06-15 09:50:47 INFO  o.e.s.network.ConnectionReceiver -  Connection Receiver listening on port 12345
+2026-06-15 09:50:47 INFO  o.example.server.io.JsonFileHandler -  Loaded 418 bands from: bands.json
+2026-06-15 09:50:47 INFO  o.e.server.service.CollectionManager -  Collection initialized with 418 elements
+2026-06-15 09:50:47 INFO  org.example.server.ServerMain -  Server Ready! Waiting for client connections...
+2026-06-15 09:50:53 INFO  o.e.s.network.ConnectionReceiver -  Received command: help
+2026-06-15 09:50:53 INFO  org.example.server.ServerMain -  Receiver request: help from client
+2026-06-15 09:50:53 INFO  o.e.server.handler.CommandProcessor - Processing command: help
+2026-06-15 09:50:53 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 09:51:06 INFO  o.e.s.network.ConnectionReceiver -  Received command: info
+2026-06-15 09:51:06 INFO  org.example.server.ServerMain -  Receiver request: info from client
+2026-06-15 09:51:06 INFO  o.e.server.handler.CommandProcessor - Processing command: info
+2026-06-15 09:51:06 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 09:51:20 INFO  o.e.s.network.ConnectionReceiver -  Received command: show
+2026-06-15 09:51:20 INFO  org.example.server.ServerMain -  Receiver request: show from client
+2026-06-15 09:51:20 INFO  o.e.server.handler.CommandProcessor - Processing command: show
+2026-06-15 09:51:20 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 09:55:01 INFO  o.e.s.network.ConnectionReceiver -  Received command: insert
+2026-06-15 09:55:01 INFO  org.example.server.ServerMain -  Receiver request: insert from client
+2026-06-15 09:55:01 INFO  o.e.server.handler.CommandProcessor - Processing command: insert
+2026-06-15 09:55:01 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 09:55:05 INFO  o.e.s.network.ConnectionReceiver -  Received command: show
+2026-06-15 09:55:05 INFO  org.example.server.ServerMain -  Receiver request: show from client
+2026-06-15 09:55:05 INFO  o.e.server.handler.CommandProcessor - Processing command: show
+2026-06-15 09:55:05 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 09:58:36 INFO  o.e.s.network.ConnectionReceiver -  Received command: help
+2026-06-15 09:58:36 INFO  org.example.server.ServerMain -  Receiver request: help from client
+2026-06-15 09:58:36 INFO  o.e.server.handler.CommandProcessor - Processing command: help
+2026-06-15 09:58:36 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 09:58:56 INFO  o.e.s.network.ConnectionReceiver -  Received command: print_field_descending_number_of_participants
+2026-06-15 09:58:56 INFO  org.example.server.ServerMain -  Receiver request: print_field_descending_number_of_participants from client
+2026-06-15 09:58:56 INFO  o.e.server.handler.CommandProcessor - Processing command: print_field_descending_number_of_participants
+2026-06-15 09:58:56 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 10:16:52 INFO  o.e.s.network.ConnectionReceiver -  Received command: update
+2026-06-15 10:16:52 INFO  org.example.server.ServerMain -  Receiver request: update from client
+2026-06-15 10:16:52 INFO  o.e.server.handler.CommandProcessor - Processing command: update
+2026-06-15 10:16:52 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 10:17:51 INFO  o.e.s.network.ConnectionReceiver -  Received command: replace_if_lower
+2026-06-15 10:17:51 INFO  org.example.server.ServerMain -  Receiver request: replace_if_lower from client
+2026-06-15 10:17:51 INFO  o.e.server.handler.CommandProcessor - Processing command: replace_if_lower
+2026-06-15 10:17:51 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 10:18:23 INFO  o.e.s.network.ConnectionReceiver -  Received command: replace_if_lower
+2026-06-15 10:18:23 INFO  org.example.server.ServerMain -  Receiver request: replace_if_lower from client
+2026-06-15 10:18:23 INFO  o.e.server.handler.CommandProcessor - Processing command: replace_if_lower
+2026-06-15 10:18:23 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 10:18:50 INFO  o.e.s.network.ConnectionReceiver -  Received command: replace_if_lower
+2026-06-15 10:18:50 INFO  org.example.server.ServerMain -  Receiver request: replace_if_lower from client
+2026-06-15 10:18:50 INFO  o.e.server.handler.CommandProcessor - Processing command: replace_if_lower
+2026-06-15 10:18:50 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 10:19:21 INFO  o.e.s.network.ConnectionReceiver -  Received command: replace_if_lower
+2026-06-15 10:19:21 INFO  org.example.server.ServerMain -  Receiver request: replace_if_lower from client
+2026-06-15 10:19:21 INFO  o.e.server.handler.CommandProcessor - Processing command: replace_if_lower
+2026-06-15 10:19:21 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 11:17:29 INFO  o.e.s.network.ConnectionReceiver -  Received command: clear
+2026-06-15 11:17:29 INFO  org.example.server.ServerMain -  Receiver request: clear from client
+2026-06-15 11:17:29 INFO  o.e.server.handler.CommandProcessor - Processing command: clear
+2026-06-15 11:17:29 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 11:17:34 INFO  o.e.s.network.ConnectionReceiver -  Received command: info
+2026-06-15 11:17:34 INFO  org.example.server.ServerMain -  Receiver request: info from client
+2026-06-15 11:17:34 INFO  o.e.server.handler.CommandProcessor - Processing command: info
+2026-06-15 11:17:34 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 11:17:37 INFO  o.e.s.network.ConnectionReceiver -  Received command: show
+2026-06-15 11:17:37 INFO  org.example.server.ServerMain -  Receiver request: show from client
+2026-06-15 11:17:37 INFO  o.e.server.handler.CommandProcessor - Processing command: show
+2026-06-15 11:17:37 INFO  org.example.server.ServerMain -  Sent response to client
+2026-06-15 11:17:49 INFO  org.example.server.ServerMain -  Saving collection before shutdown...
+2026-06-15 11:17:49 INFO  o.example.server.io.JsonFileHandler -  Collection saved to: bands.json
+2026-06-15 11:17:49 INFO  org.example.server.ServerMain -  Server terminated. Goodbye!

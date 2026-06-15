@@ -56,7 +56,7 @@ public class ClientNetwork {
 
                 } catch (SocketTimeoutException e) {
                     if (attempt == maxAttempts) {
-                        return new Response(false, "  Server is unavailable. Please check if it is running.");
+                        return new Response(false, "  Server is unavailable. Try again later.");
                     }
                 }
             }
