@@ -23,8 +23,8 @@ public class Coordinates implements Serializable {
         this.x = x;
     }
 
-    public float getY() {
-        return y;
+    public long getY() {
+        return (long) y;
     }
 
     public void setY(float y) {

@@ -25,28 +25,32 @@ public class CommandRegistry {
     public CommandRegistry(){
 
         registry.put("help", new CommandEntry(
-                (manager, cmd) -> new Response(true, getHelpMessage()),
+                (manager, command) -> new Response(true, getHelpMessage()),
                 "Display help on available commands"));
+
         registry.put("info", new CommandEntry(
-                (manager, cmd) -> new Response(true, manager.getInfo()),
+                (manager, command) -> new Response(true, manager.getInfo()),
                 "Print collection information"));
+
         registry.put("show", new CommandEntry(
-                (manager, cmd) -> {
+                (manager, command) -> {
                     var bands = manager.getSortedCollection();
                     return new Response(true, formatTable(bands));
                 },
                 "Print all elements of the collection"
         ));
         registry.put("clear", new CommandEntry(
-                (manager, cmd) -> new Response(true, manager.clear()),
-                "Clear collection"));
-        registry.put("save", new CommandEntry((manager, cmd) -> {
-            manager.saveCollection("bands.json");
-            return new Response(true, "Collection to save: bands.json");
-        },"Save collection to file (server-only)"));
+                (manager, command) -> new Response(true, manager.clear()),
+                "Clear collection (only your own bands)"));
+
         registry.put("insert", new CommandEntry(
-                (manager, cmd) -> new Response(true, manager.insert(cmd.getKey(), cmd.getMusicBand())),
+                (manager, command) -> {
+                    String ownerLogin = command.getLogin();
+                    String result = manager.insert(command.getKey(), command.getMusicBand(), ownerLogin);
+                    return new Response(true, result);
+                },
                 "Add a new element with the given key"));
+
         registry.put("add_random", new CommandEntry(
             (manager, command) -> {
                 try {
@@ -55,66 +59,88 @@ public class CommandRegistry {
                         return new Response(false, "Error: Number must be > 0");
                     }
 
+                    String ownerLogin = command.getLogin();
+                    int successCount = 0;
+
                     for (int i = 0; i < count; i++) {
                         String key = "rand_" + i + "_" + System.currentTimeMillis() + "_" +
                                     UUID.randomUUID().toString().substring(0, 4);
                         MusicBand band = generateRandomBand();
-                        manager.insert(key, band);
+
+                        String result = manager.insert(key, band, ownerLogin);
+
+                        if (result.contains("✅")) {
+                            successCount++;
+                        }
                     }
 
-                    return new Response(true, " Successfully added " + count + " band(s).");
+                    return new Response(true, " Successfully added " + successCount + " band(s) to database.");
+
                 } catch (NumberFormatException e) {
-                    return new Response(false, "Error: Invalid number format");
+                    return new Response(false, " Error: Invalid number format");
                 } catch (Exception e) {
-                    return new Response(false, "Error: Failed to generate bands");
+                    return new Response(false, " Error:❌ Failed to generate bands");
                 }
             },
-                "Add n random music bands to the collection"
-            ));
+                "Add n random music bands to the collection"));
+
         registry.put("update", new CommandEntry(
-                (manager,cmd) -> new Response(true, manager.update(cmd.getId(), cmd.getMusicBand())),
-                "Update element by ID"));
+                (manager,command) -> {
+                    String ownerLogin = command.getLogin();
+                    String result = manager.update(command.getId(), command.getMusicBand(), ownerLogin);
+                    return new Response(true, result);
+                },
+                "Update element by ID (only if you own it)"));
+
         registry.put("remove_key", new CommandEntry(
-                (manager, cmd) -> new Response(true, manager.removeKey(cmd.getKey())),
-                "Remove element by key"));
+                (manager, command) -> {
+                    String ownerLogin = command.getLogin();
+                    String result = manager.removeKey(command.getKey(), ownerLogin);
+                    return new Response(true, result);
+                },
+                "Remove element by key (only if you own it)"));
+
         registry.put("replace_if_lower", new CommandEntry(
-                (manager, cmd) -> new Response(true, manager.replaceIfLower(cmd.getKey(),cmd.getMusicBand())),
-                "Replace if new value is less"));
+                (manager, command) -> {
+                    String ownerLogin = command.getLogin();
+                    String result = manager.replaceIfLower(command.getKey(), command.getMusicBand(), ownerLogin);
+                    return new Response(true, result);
+                },
+                "Replace if new value is less (only if you own it)"));
+
         registry.put("remove_greater", new CommandEntry(
-                (manager, cmd) -> {
-                    var removed = manager.removeGreater(cmd.getMusicBand());
+                (manager, command) -> {
+                    var removed = manager.removeGreater(command.getMusicBand());
                     return new Response(true, "Removed " + removed.size() + " band(s) greater than specified", removed);
                 }
                 ,"Remove elements greater than specified"
         ));
-        registry.put("remove_greater_key", new CommandEntry(
-                (manager, cmd) -> {
-                    var removed = manager.removeGreaterKey(cmd.getKey());
-                    return new Response(true, "Removed " + removed.size() + " band(s) with key greater than '" + cmd.getKey() + "'", removed);
-                },
-                "Remove elements with key greater than given"));
+
+
         registry.put("count_greater_than_description", new CommandEntry(
-                (manager, cmd) -> {
-                    String desc = cmd.getArgument();
+                (manager, command) -> {
+                    String desc = command.getArgument();
                     long count = manager.countGreaterThanDescription(desc);
                     return new Response(true,"Number of bands with description greater than '" + desc + "': " + count);
                 },
                 "Count elements with description greater"));
+
         registry.put("filter_less_than_genre", new CommandEntry(
-                (manager, cmd) -> {
+                (manager, command) -> {
                     try {
-                        MusicGenre genre = MusicGenre.valueOf(cmd.getArgument().toUpperCase());
+                        MusicGenre genre = MusicGenre.valueOf(command.getArgument().toUpperCase());
                         var bands = manager.filterLessThanGenre(genre);
                         return  new Response(true, "Bands with genre less than " + genre, bands);
                     } catch (IllegalArgumentException e) {
-                        return new Response(false, " Invalid genre: '" + cmd.getArgument() + "'\nValid genres: " +
+                        return new Response(false, " Invalid genre: '" + command.getArgument() + "'\nValid genres: " +
                                Arrays.toString(MusicGenre.values()));
                     }
                 },
                 "Display elements with genre less than specified"
         ));
+
         registry.put("print_field_descending_number_of_participants", new CommandEntry(
-                (manager, cmd) -> {
+                (manager, command) -> {
                     var bands = manager.getBandsByParticipantsDescending();
                     return new Response(true, "Number of Participants(Descending)", bands);
                 },
@@ -129,7 +155,6 @@ public class CommandRegistry {
 
         StringBuilder sb = new StringBuilder();
         sb.append("Collection Contents\n");
-
         sb.append("---------------------------------------------------------------------------\n");
         sb.append(String.format("  %-10s %-25s %-15s %-10s\n", "ID", "Name", "Genre", "Members"));
         sb.append("---------------------------------------------------------------------------\n");

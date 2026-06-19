@@ -15,6 +15,9 @@ public class Command implements Serializable {
     private String argument;
     private Integer id;
 
+    private String login;
+    private String password;
+
     public Command(String commandType, String key, MusicBand musicBand, String argument, Integer id) {
         this.commandType = commandType;
         this.key = key;
@@ -70,6 +73,22 @@ public class Command implements Serializable {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override

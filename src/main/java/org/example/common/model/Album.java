@@ -34,4 +34,8 @@ public class Album implements Serializable {
                 ", length=" + length +
                 '}';
     }
+
+    public String getAlbumName() {
+        return albumName;
+    }
 }

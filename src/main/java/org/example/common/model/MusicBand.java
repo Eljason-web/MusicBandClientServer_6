@@ -26,6 +26,7 @@ public class MusicBand implements Comparable<MusicBand>, Serializable {
                          LocalDateTime creationDate, Integer numberOfParticipants,
                          Integer albumsCount, String description,
                          MusicGenre genre, Album bestAlbum) {
+
             this.id = id;
             this.name = name;
             this.coordinates = coordinates;
@@ -122,7 +123,9 @@ public class MusicBand implements Comparable<MusicBand>, Serializable {
 
     @Override
     public int compareTo(MusicBand other) {
-            if (other == null) return 1;
+            if (null == other) {
+                return 1;
+            }
 
             int thisParticipants = this.numberOfParticipants != null ? this.numberOfParticipants : 0;
             int otherParticipants = other.numberOfParticipants != null ? other.numberOfParticipants : 0;

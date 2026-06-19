@@ -7,6 +7,7 @@ import org.example.common.command.Command;
 import org.example.common.command.Response;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 public class ClientMain {
 
@@ -21,6 +22,12 @@ public class ClientMain {
         ClientNetwork network = null;
         QueryReader queryReader = null;
         ResponseHandler responseHandler;
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter your login: ");
+        String login = scanner.nextLine();
+        System.out.print("Enter your password: ");
+        String password = scanner.nextLine();
 
 
 
@@ -38,6 +45,9 @@ public class ClientMain {
                 if (command == null) continue;
                 if ("exit".equals(command.getCommandType()))
                     break;
+                command.setLogin(login);
+                command.setPassword(password);
+
                 Response response = network.sendCommand(command);
                 responseHandler.handleResponse(response);
             }
