@@ -59,6 +59,11 @@ public class BandDAO {
 
             while (resultSet.next()) {
                 MusicBand band = mapResultSetToBand(resultSet);
+
+                band.setId(resultSet.getInt("id"));
+                band.setName(resultSet.getString("name"));
+
+                band.setOwner(resultSet.getString("owner"));
                 bands.add(band);
             }
         } catch (SQLException e) {
@@ -96,19 +101,51 @@ public class BandDAO {
         }
     }
 
-    public static boolean deleteBand(long bandId, String ownerLogin) {
-        String sql = " DELETE FROM bands WHERE id = ? AND owner =?";
+    public static boolean deleteBand(Integer id, String ownerLogin) {
+        String sql = " DELETE FROM bands WHERE id =? AND owner = ?";
 
         try (Connection connection = DatabaseManager.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setLong(1, bandId);
+            statement.setInt(1, id);
             statement.setString(2, ownerLogin);
 
             return statement.executeUpdate() > 0;
 
         } catch (SQLException e) {
             System.err.println(" Delete band failed: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public static boolean deleteBand(Integer id) {
+        String sql = "DELETE FROM bands WHERE id = ?";
+
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, id);
+
+            return statement.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.err.println("❌ Delete band failed: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public static boolean deleteBandsByOwner(String ownerLogin) {
+        String sql = "DELETE FROM bands WHERE owner = ?";
+
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, ownerLogin);
+            statement.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println("❌ Clear bands failed: " + e.getMessage());
             return false;
         }
     }
@@ -141,6 +178,7 @@ public class BandDAO {
         if (albumName != null) {
             Album album = new Album(albumName, albumLength);
             band.setBestAlbum(album);
+            band.setOwner(resultSet.getString("owner"));
         }
         return band;
     }

@@ -7,6 +7,7 @@ import org.example.server.database.BandDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -100,7 +101,7 @@ public class CollectionManager {
 
             for (String key : keyToRemove) {
                 MusicBand band = collection.getMusicBandLinkedHashMap().get(key);
-                if (BandDAO.deleteBand(band.getId(), "system")) {
+                if (BandDAO.deleteBand(band.getId())) {
                     collection.getMusicBandLinkedHashMap().remove(key);
                 }
             }
@@ -143,7 +144,7 @@ public class CollectionManager {
         }
     }
 
-    public String update(int id, MusicBand updatedBand, String ownerLogin) {
+    public String update(int id, MusicBand updatedBand, String currentUser) {
         lock.writeLock().lock();
         try {
 
@@ -153,16 +154,22 @@ public class CollectionManager {
             }
 
             MusicBand original = collection.getMusicBandLinkedHashMap().get(key);
+
+            if (!original.getOwner().equals(currentUser)) {
+                return " Access Denied: You can only modify your own bands. This band belongs to " + original.getOwner();
+            }
+
             updatedBand.setId(original.getId());
             updatedBand.setCreationDate(original.getCreationDate());
+            updatedBand.setOwner(original.getOwner());
 
-            boolean dbSuccess = BandDAO.updatedBand(updatedBand, ownerLogin);
+            boolean dbSuccess = BandDAO.updatedBand(updatedBand, currentUser);
 
             if (dbSuccess) {
                 collection.getMusicBandLinkedHashMap().put(key, updatedBand);
-                return " Update music band with id " + id + " successfully";
+                return "✅ Update music band with id " + id + " successfully";
             } else {
-                return " Failed to update band (you may not own this band)";
+                return "❌ Failed to update band (you may not own this band)";
             }
         } finally {
             lock.writeLock().unlock();
@@ -224,11 +231,37 @@ public class CollectionManager {
         }
     }
 
-    public String clear() {
+    public String clear(String ownerLogin) {
         lock.writeLock().lock();
         try {
-            collection.getMusicBandLinkedHashMap().clear();
-            return " Music band Collection has been cleared";
+
+            List<String> keyToRemove = new ArrayList<>();
+
+            for (Map.Entry<String, MusicBand> entry : collection.getMusicBandLinkedHashMap().entrySet()) {
+                if (ownerLogin.equals(entry.getValue().getOwner())) {
+                    keyToRemove.add(entry.getKey());
+                }
+            }
+
+            if (keyToRemove.isEmpty()) {
+                return "❌ You have no bands in the collection to modify.";
+            }
+
+            for (String key : keyToRemove) {
+                collection.getMusicBandLinkedHashMap().remove(key);
+            }
+
+            boolean dbSuccess = BandDAO.deleteBandsByOwner(ownerLogin);
+
+            if (dbSuccess) {
+
+                for (String key : keyToRemove) {
+                    collection.getMusicBandLinkedHashMap().remove(key);
+                }
+                return "✅ Successfully cleared your bands from the collection.";
+            } else {
+                return "❌ Failed to clear bands from database.";
+            }
         } finally {
             lock.writeLock().unlock();
         }

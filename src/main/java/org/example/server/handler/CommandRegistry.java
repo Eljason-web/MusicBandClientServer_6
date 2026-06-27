@@ -40,13 +40,24 @@ public class CommandRegistry {
                 "Print all elements of the collection"
         ));
         registry.put("clear", new CommandEntry(
-                (manager, command) -> new Response(true, manager.clear()),
+                (manager, command) -> {
+                    String ownerLogin = command.getLogin();
+                    String result = manager.clear(ownerLogin);
+
+                    return new Response(true, result);
+                },
                 "Clear collection (only your own bands)"));
 
         registry.put("insert", new CommandEntry(
                 (manager, command) -> {
                     String ownerLogin = command.getLogin();
-                    String result = manager.insert(command.getKey(), command.getMusicBand(), ownerLogin);
+                    MusicBand band = command.getMusicBand();
+
+                    if (band != null) {
+                        band.setOwner(ownerLogin);
+                    }
+
+                    String result = manager.insert(command.getKey(), band, ownerLogin);
                     return new Response(true, result);
                 },
                 "Add a new element with the given key"));
@@ -67,6 +78,7 @@ public class CommandRegistry {
                                     UUID.randomUUID().toString().substring(0, 4);
                         MusicBand band = generateRandomBand();
 
+                        band.setOwner(ownerLogin);
                         String result = manager.insert(key, band, ownerLogin);
 
                         if (result.contains("✅")) {
@@ -87,7 +99,13 @@ public class CommandRegistry {
         registry.put("update", new CommandEntry(
                 (manager,command) -> {
                     String ownerLogin = command.getLogin();
-                    String result = manager.update(command.getId(), command.getMusicBand(), ownerLogin);
+                    MusicBand band = command.getMusicBand();
+
+                    if (band != null) {
+                        band.setOwner(ownerLogin);
+                    }
+
+                    String result = manager.update(command.getId(), band, ownerLogin);
                     return new Response(true, result);
                 },
                 "Update element by ID (only if you own it)"));
@@ -103,7 +121,13 @@ public class CommandRegistry {
         registry.put("replace_if_lower", new CommandEntry(
                 (manager, command) -> {
                     String ownerLogin = command.getLogin();
-                    String result = manager.replaceIfLower(command.getKey(), command.getMusicBand(), ownerLogin);
+                    MusicBand band = command.getMusicBand();
+
+                    if (band != null) {
+                        band.setOwner(ownerLogin);
+                    }
+
+                    String result = manager.replaceIfLower(command.getKey(), band, ownerLogin);
                     return new Response(true, result);
                 },
                 "Replace if new value is less (only if you own it)"));

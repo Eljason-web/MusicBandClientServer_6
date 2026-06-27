@@ -215,7 +215,7 @@ public class QueryReader {
                 member, 0,
                 "Auto-generated",
                 genre,
-                new Album("Album", 1L)
+                new Album("Album", 1L), null
         );
         band.setYear(year);
         return band;

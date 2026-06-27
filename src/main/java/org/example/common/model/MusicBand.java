@@ -6,12 +6,14 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+
 @SuppressWarnings("unused")
 public class MusicBand implements Comparable<MusicBand>, Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
 
         private Integer id;
+        private String owner;
         private String name;
         private Coordinates coordinates;
         private java.time.LocalDateTime creationDate;
@@ -25,7 +27,7 @@ public class MusicBand implements Comparable<MusicBand>, Serializable {
         public MusicBand(Integer id, String name, Coordinates coordinates,
                          LocalDateTime creationDate, Integer numberOfParticipants,
                          Integer albumsCount, String description,
-                         MusicGenre genre, Album bestAlbum) {
+                         MusicGenre genre, Album bestAlbum, String owner) {
 
             this.id = id;
             this.name = name;
@@ -36,6 +38,7 @@ public class MusicBand implements Comparable<MusicBand>, Serializable {
             this.description = description;
             this.genre = genre;
             this.bestAlbum = bestAlbum;
+            this.owner = owner;
         }
 
         public MusicBand() {}
@@ -46,6 +49,14 @@ public class MusicBand implements Comparable<MusicBand>, Serializable {
 
         public void setId(Integer id) {
             this.id = id;
+        }
+
+        public String getOwner() {
+            return owner;
+        }
+
+        public void setOwner(String owner) {
+            this.owner = owner;
         }
 
         public String getName() {

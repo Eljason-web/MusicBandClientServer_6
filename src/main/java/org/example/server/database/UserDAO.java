@@ -37,18 +37,41 @@ public class UserDAO {
         }
 
         String hashedPassword = hashPassword(password);
-        String sql = "SELECT login FROM users WHERE login = ? AND password = ?";
+
+        String checkSql = "SELECT password FROM users WHERE login = ?";
 
         try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(checkSql)) {
 
             statement.setString(1, login);
-            statement.setString(2, hashedPassword);
-            ResultSet resultset = statement.executeQuery();
-            return resultset.next();
+            ResultSet resultSet = statement.executeQuery();
 
+            if (resultSet.next()) {
+                String storedPassword = resultSet.getString("password");
+                return storedPassword.equals(hashedPassword);
+            } else {
+                System.out.println(" New user detected: '" + login + "'. Registering automatically...");
+                return registerNewUser(login, hashedPassword);
+            }
         } catch (SQLException e) {
             System.err.println("❌ Credential verification failed: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private static boolean registerNewUser(String login, String hashedPassword) {
+        String insertSql = "INSERT INTO users (login, password) VALUES (?, ?)";
+
+        try (Connection connection = DatabaseManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(insertSql)) {
+
+                 statement.setString(1, login);
+                 statement.setString(2, hashedPassword);
+
+                 return statement.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.out.println("❌ Registration failed: " + e.getMessage());
             return false;
         }
     }
