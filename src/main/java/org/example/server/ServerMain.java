@@ -2,7 +2,6 @@ package org.example.server;
 
 import org.example.common.command.Response;
 import org.example.server.database.DatabaseManager;
-import org.example.server.database.UserDAO;
 import org.example.server.handler.CommandProcessor;
 import org.example.server.network.ConnectionReceiver;
 import org.example.server.network.ResponseSender;
@@ -28,11 +27,6 @@ public class ServerMain {
         logger.info("Mode: Single-thread, UDP, Non-blocking");
 
         DatabaseManager.testConnection();
-        UserDAO.registerUser("testuser", "password123");
-        UserDAO.registerUser("admin", "admin123");
-
-        boolean success = UserDAO.authenticateUser("testuser", "password123");
-        System.out.println("Authentication test: " + (success ? " Pass" : " FAIL"));
 
         ExecutorService readerPool = Executors.newCachedThreadPool();
 

@@ -131,7 +131,7 @@ public class CollectionManager {
             }
             if (band == null) return " Error: Element data cannot be null";
 
-            boolean dbSuccess = BandDAO.insertBand(band, ownerLogin);
+            boolean dbSuccess = true;
 
             if (dbSuccess) {
                 collection.getMusicBandLinkedHashMap().put(key, band);

@@ -6,6 +6,7 @@ import org.example.common.enums.MusicGenre;
 import org.example.common.command.Response;
 import org.example.common.model.Coordinates;
 import org.example.common.model.Album;
+import org.example.server.database.BandDAO;
 import org.example.server.service.CollectionManager;
 
 import java.time.LocalDateTime;
@@ -71,22 +72,25 @@ public class CommandRegistry {
                     }
 
                     String ownerLogin = command.getLogin();
-                    int successCount = 0;
+                    List<MusicBand> bandsToInsert = new ArrayList<>();
 
                     for (int i = 0; i < count; i++) {
-                        String key = "rand_" + i + "_" + System.currentTimeMillis() + "_" +
-                                    UUID.randomUUID().toString().substring(0, 4);
                         MusicBand band = generateRandomBand();
-
                         band.setOwner(ownerLogin);
-                        String result = manager.insert(key, band, ownerLogin);
+                        bandsToInsert.add(band);
 
-                        if (result.contains("✅")) {
-                            successCount++;
-                        }
                     }
 
-                    return new Response(true, " Successfully added " + successCount + " band(s) to database.");
+                    boolean dbSuccess = BandDAO.insertBandsBatch(bandsToInsert,ownerLogin);
+
+                    if (dbSuccess) {
+                        for (MusicBand band : bandsToInsert) {
+                            manager.insert("rand_" + band.getId(), band, ownerLogin);
+                        }
+                        return new Response(true, " Successfully added " + count + " band(s) to database.");
+                    } else {
+                        return new Response(false, "Failed to add bands to database.");
+                    }
 
                 } catch (NumberFormatException e) {
                     return new Response(false, " Error: Invalid number format");
@@ -179,25 +183,57 @@ public class CommandRegistry {
 
         StringBuilder sb = new StringBuilder();
         sb.append("Collection Contents\n");
-        sb.append("---------------------------------------------------------------------------\n");
-        sb.append(String.format("  %-10s %-25s %-15s %-10s\n", "ID", "Name", "Genre", "Members"));
-        sb.append("---------------------------------------------------------------------------\n");
+
+        sb.append(String.format("%-5s | %-12s | %-8s | %-6s | %-11s | %-5s | %-12s | %-10s | %-10s | %-5s | %-8s\n",
+                "ID", "Name", "X", "Y", "Date", "Ppl", "Desc", "Genre", "Album", "Len", "Owner"));
+
+        sb.append("-".repeat(110)).append("\n");
 
         for (MusicBand band : bands) {
-            String idStr = band.getId() != null ? String.valueOf(band.getId()) : "N/A";
-            String nameStr = band.getName() != null ? band.getName() : "Unknown";
-            String genreStr = band.getGenre() != null ? band.getGenre().toString() : "N/A";
-            int membersCount = band.getNumberOfParticipants() != null ? band.getNumberOfParticipants() : 0;
+            long id = band.getId();
 
-            sb.append(String.format(" %-10s %-25s %-15s %-10d\n",
-                    idStr,
-                    nameStr,
-                    genreStr,
-                    membersCount
+            String name = band.getName() != null ? band.getName() : "Unknown";
+            if (name.length() > 12) name = name.substring(0,9) + "...";
+
+            double x = band.getCoordinates() != null ? band.getCoordinates().getX() : 0;
+            String xStr = String.format("%.1f", x);
+
+            long y = band.getCoordinates() != null ? band.getCoordinates().getY() : 0;
+
+            String date = band.getCreationDate() != null ?
+                    band.getCreationDate().toString().substring(0, 10) : "N/A";
+
+            int members = band.getNumberOfParticipants() != null ? band.getNumberOfParticipants() : 0;
+
+            String desc = band.getDescription() != null ? band.getDescription() : "";
+            if (desc.length() > 12) desc = desc.substring(0, 9) + "...";
+
+            String genre = band.getGenre() != null ? band.getGenre().toString() : "N/A";
+            if (genre.length() > 10) genre = genre.substring(0, 5) + "...";
+
+            String albumName = band.getBestAlbum() !=null ? band.getBestAlbum().getAlbumName() : "";
+            if (albumName.length() > 10) albumName = albumName.substring(0, 5) + "...";
+
+            long albumLen = band.getBestAlbum() != null ? band.getBestAlbum().getLength() : 0;
+
+            String owner = band.getOwner() != null ? band.getOwner() : "null";
+            if (owner.length() > 8) owner = owner.substring(0, 5) + "...";
+
+            sb.append(String.format("%-5s | %-12s | %-8s | %-6s | %-11s | %-5s | %-12s | %-10s | %-10s | %-5s | %-8s\n",
+                    id,
+                    name,
+                    xStr,
+                    y,
+                    date,
+                    members,
+                    desc,
+                    genre,
+                    albumName,
+                    albumLen,
+                    owner
             ));
         }
 
-        sb.append("-----------------------------------------------------------------------------\n");
         sb.append("Total: ").append(bands.size()).append(" band(s)");
         return sb.toString();
     }
