@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-07-04T00:00:00.000Z" agent="Mozilla/5.0" version="21.0.0" type="device">
+  <diagram id="info-popup" name="Object Info Popup">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="400" pageHeight="450" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Window Frame -->
+        <mxCell id="window" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="30" width="300" height="380" as="geometry" />
+        </mxCell>
+        
+        <!-- Title Bar -->
+        <mxCell id="titlebar" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d0d0d0;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="30" width="300" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="title" value="Object Information" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="60" y="32" width="200" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="close" value="X" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="320" y="35" width="15" height="15" as="geometry" />
+        </mxCell>
+        
+        <!-- Info Content -->
+        <mxCell id="info1" value="ID: 1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="70" y="70" width="260" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="info2" value="Name: Band1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="70" y="95" width="260" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="info3" value="Coordinates: (10.5, 20)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="70" y="120" width="260" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="info4" value="Date: 2026-07-01" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="70" y="145" width="260" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="info5" value="Participants: 5" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="70" y="170" width="260" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="info6" value="Description: Rock band..." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="70" y="195" width="260" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="info7" value="Genre: ROCK" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="70" y="220" width="260" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="info8" value="Album: Best Of (300s)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="70" y="245" width="260" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="info9" value="Owner: admin" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="70" y="270" width="260" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Buttons -->
+        <mxCell id="editBtn" value="Edit" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e0e0e0;strokeColor=#999999;strokeWidth=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="70" y="310" width="60" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="deleteBtn" value="Delete" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e0e0e0;strokeColor=#999999;strokeWidth=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="140" y="310" width="60" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="closeBtn" value="Close" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e0e0e0;strokeColor=#999999;strokeWidth=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="210" y="310" width="60" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- Note -->
+        <mxCell id="note1" value="Opens when clicking an object in the Canvas or double-clicking a row in the JTable. Shows all DB fields." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;size=15;fillColor=#ffffcc;strokeColor=#666666;fontSize=9;align=left;spacingLeft=5;spacingRight=5;" vertex="1" parent="1">
+          <mxGeometry x="50" y="360" width="180" height="40" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

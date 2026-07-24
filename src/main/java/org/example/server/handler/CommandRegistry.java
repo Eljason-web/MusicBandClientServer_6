@@ -11,6 +11,8 @@ import org.example.server.service.CollectionManager;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
 
 import java.util.stream.Collectors;
 
@@ -29,14 +31,57 @@ public class CommandRegistry {
                 (manager, command) -> new Response(true, getHelpMessage()),
                 "Display help on available commands"));
 
+        registry.put("login", new CommandEntry(
+                (manager, command) -> {
+                    String login = command.getLogin();
+                    String password = command.getPassword();
+
+                    if (login != null && !login.isEmpty() && password != null && !password.isEmpty()) {
+
+                        return new Response(true, "Welcome, " + login + "!");
+                    } else {
+                        return new Response(false, "Invalid credentials. Username and password cannot be empty.");
+                    }
+                },
+                "Authenticate user"
+        ));
+
         registry.put("info", new CommandEntry(
                 (manager, command) -> new Response(true, manager.getInfo()),
                 "Print collection information"));
 
         registry.put("show", new CommandEntry(
                 (manager, command) -> {
-                    var bands = manager.getSortedCollection();
-                    return new Response(true, formatTable(bands));
+                    List<MusicBand> allBands = new java.util.ArrayList<>(manager.getSortedCollection());
+
+                    int chunkSize = 25;
+                    int totalChunks = (int) Math.ceil((double) allBands.size() / chunkSize);
+                    if (totalChunks == 0) totalChunks = 1;
+
+                    Response mainResponse = new Response(true, "Collection Contents");
+                    mainResponse.setTotalChunks(totalChunks);
+                    mainResponse.setChunkIndex(1);
+
+                    List<Response> chunks = new ArrayList<>();
+
+                    for (int i = 0; i < allBands.size(); i += chunkSize) {
+                        int end = Math.min(i + chunkSize, allBands.size());
+                        java.util.List<MusicBand> subList = new ArrayList<>(allBands.subList(i, end));
+
+                        Response chunkResponse = new Response(true, "Collection Contents (Chunk)");
+                        chunkResponse.setBand(subList);
+                        chunkResponse.setChunkIndex((i / chunkSize) + 1);
+                        chunkResponse.setTotalChunks(totalChunks);
+
+                        if (i == 0) {
+                            mainResponse.setBand(subList);
+                        } else {
+                            chunks.add(chunkResponse);
+                        }
+                    }
+
+                    mainResponse.setAdditionalChunks(chunks);
+                    return mainResponse;
                 },
                 "Print all elements of the collection"
         ));
@@ -58,7 +103,7 @@ public class CommandRegistry {
                         band.setOwner(ownerLogin);
                     }
 
-                    String result = manager.insert(command.getKey(), band, ownerLogin);
+                    String result = manager.insert(command.getKey(), band);
                     return new Response(true, result);
                 },
                 "Add a new element with the given key"));
@@ -66,7 +111,7 @@ public class CommandRegistry {
         registry.put("add_random", new CommandEntry(
             (manager, command) -> {
                 try {
-                    int count = Integer.parseInt(command.getArgument());
+                    int count = Integer.parseInt((String) command.getArgument());
                     if (count <= 0) {
                         return new Response(false, "Error: Number must be > 0");
                     }
@@ -85,7 +130,7 @@ public class CommandRegistry {
 
                     if (dbSuccess) {
                         for (MusicBand band : bandsToInsert) {
-                            manager.insert("rand_" + band.getId(), band, ownerLogin);
+                            manager.insert("rand_" + band.getId(), band);
                         }
                         return new Response(true, " Successfully added " + count + " band(s) to database.");
                     } else {
@@ -122,6 +167,23 @@ public class CommandRegistry {
                 },
                 "Remove element by key (only if you own it)"));
 
+        registry.put("remove_by_id" , new CommandEntry(
+                (manager, command) -> {
+                    try{
+                        int id = Integer.parseInt(command.getArgument().toString());
+                        String owner = command.getLogin();
+
+                        String resultMessage = manager.removeById(id, owner);
+                        boolean isSuccess = resultMessage.contains("✅");
+
+                        return new Response(isSuccess, resultMessage);
+                    } catch (NumberFormatException e) {
+                        return new Response(false, "Invalid ID format");
+                    }
+                },
+                "Remove an element from the collection by its id"
+        ));
+
         registry.put("replace_if_lower", new CommandEntry(
                 (manager, command) -> {
                     String ownerLogin = command.getLogin();
@@ -147,7 +209,7 @@ public class CommandRegistry {
 
         registry.put("count_greater_than_description", new CommandEntry(
                 (manager, command) -> {
-                    String desc = command.getArgument();
+                    String desc = (String) command.getArgument();
                     long count = manager.countGreaterThanDescription(desc);
                     return new Response(true,"Number of bands with description greater than '" + desc + "': " + count);
                 },
@@ -156,7 +218,7 @@ public class CommandRegistry {
         registry.put("filter_less_than_genre", new CommandEntry(
                 (manager, command) -> {
                     try {
-                        MusicGenre genre = MusicGenre.valueOf(command.getArgument().toUpperCase());
+                        MusicGenre genre = MusicGenre.valueOf(((String) command.getArgument()).toUpperCase());
                         var bands = manager.filterLessThanGenre(genre);
                         return  new Response(true, "Bands with genre less than " + genre, bands);
                     } catch (IllegalArgumentException e) {
@@ -174,68 +236,6 @@ public class CommandRegistry {
                 },
                 "Output participants in descending order"
         ));
-    }
-
-    private String formatTable(List<MusicBand> bands) {
-        if (bands.isEmpty()) {
-            return "Collection Contents\nEmpty collection";
-        }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Collection Contents\n");
-
-        sb.append(String.format("%-5s | %-12s | %-8s | %-6s | %-11s | %-5s | %-12s | %-10s | %-10s | %-5s | %-8s\n",
-                "ID", "Name", "X", "Y", "Date", "Ppl", "Desc", "Genre", "Album", "Len", "Owner"));
-
-        sb.append("-".repeat(110)).append("\n");
-
-        for (MusicBand band : bands) {
-            long id = band.getId();
-
-            String name = band.getName() != null ? band.getName() : "Unknown";
-            if (name.length() > 12) name = name.substring(0,9) + "...";
-
-            double x = band.getCoordinates() != null ? band.getCoordinates().getX() : 0;
-            String xStr = String.format("%.1f", x);
-
-            long y = band.getCoordinates() != null ? band.getCoordinates().getY() : 0;
-
-            String date = band.getCreationDate() != null ?
-                    band.getCreationDate().toString().substring(0, 10) : "N/A";
-
-            int members = band.getNumberOfParticipants() != null ? band.getNumberOfParticipants() : 0;
-
-            String desc = band.getDescription() != null ? band.getDescription() : "";
-            if (desc.length() > 12) desc = desc.substring(0, 9) + "...";
-
-            String genre = band.getGenre() != null ? band.getGenre().toString() : "N/A";
-            if (genre.length() > 10) genre = genre.substring(0, 5) + "...";
-
-            String albumName = band.getBestAlbum() !=null ? band.getBestAlbum().getAlbumName() : "";
-            if (albumName.length() > 10) albumName = albumName.substring(0, 5) + "...";
-
-            long albumLen = band.getBestAlbum() != null ? band.getBestAlbum().getLength() : 0;
-
-            String owner = band.getOwner() != null ? band.getOwner() : "null";
-            if (owner.length() > 8) owner = owner.substring(0, 5) + "...";
-
-            sb.append(String.format("%-5s | %-12s | %-8s | %-6s | %-11s | %-5s | %-12s | %-10s | %-10s | %-5s | %-8s\n",
-                    id,
-                    name,
-                    xStr,
-                    y,
-                    date,
-                    members,
-                    desc,
-                    genre,
-                    albumName,
-                    albumLen,
-                    owner
-            ));
-        }
-
-        sb.append("Total: ").append(bands.size()).append(" band(s)");
-        return sb.toString();
     }
 
     public String getHelpMessage() {

@@ -12,46 +12,6 @@ import java.util.List;
 
 public class BandDAO {
 
-    public static boolean insertBand(MusicBand band, String ownerLogin) {
-        String sql = "INSERT INTO bands (name, coordinates_x, coordinates_y, number_of_participants, " +
-                    "description, genre, album_name, album_length, owner) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-        try (Connection connection = DatabaseManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-            connection.setAutoCommit(false);
-
-            statement.setString(1, band.getName());
-            statement.setDouble(2, band.getCoordinates().getX());
-            statement.setLong(3, band.getCoordinates().getY());
-            statement.setInt(4, band.getNumberOfParticipants());
-            statement.setString(5, band.getDescription());
-            statement.setString(6, band.getGenre() != null ? band.getGenre().name() : null);
-            statement.setString(7, band.getBestAlbum() != null ? band.getBestAlbum().getAlbumName() : null);
-            statement.setLong(8, band.getBestAlbum() != null ? band.getBestAlbum().getLength() : 0);
-            statement.setString(9, ownerLogin);
-
-            int rows = statement.executeUpdate();
-
-            if (rows > 0) {
-                ResultSet generatedKeys = statement.getGeneratedKeys();
-                if (generatedKeys.next()) {
-                    long id = generatedKeys.getLong(1);
-                    band.setId((int) id);
-                }
-
-                return true;
-
-            }
-            return false;
-
-        } catch (SQLException e) {
-            System.err.println(" Insert band failed: " + e.getMessage());
-            return false;
-        }
-    }
-
     public static boolean insertBandsBatch(List<MusicBand> bands, String ownerLogin) {
         String sql = "INSERT INTO bands (name, coordinates_x, coordinates_y, number_of_participants, " +
                 "description, genre, album_name, album_length, owner) " +
@@ -146,7 +106,7 @@ public class BandDAO {
         }
     }
 
-    public static boolean deleteBand(Integer id, String ownerLogin) {
+    public static boolean deleteBand(Integer id,String ownerLogin) {
         String sql = " DELETE FROM bands WHERE id =? AND owner = ?";
 
         try (Connection connection = DatabaseManager.getConnection();
@@ -186,7 +146,7 @@ public class BandDAO {
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1, ownerLogin);
-            statement.executeUpdate();
+
             return true;
 
         } catch (SQLException e) {

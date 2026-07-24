@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-07-04T00:00:00.000Z" agent="Mozilla/5.0" version="21.0.0" type="device">
+  <diagram id="login-window" name="Login Window">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="800" pageHeight="600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Window Frame -->
+        <mxCell id="window" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="50" width="600" height="500" as="geometry" />
+        </mxCell>
+        
+        <!-- Title Bar -->
+        <mxCell id="titlebar" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d0d0d0;strokeColor=#000000;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="50" width="600" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- Window Title -->
+        <mxCell id="title" value="Music Band Manager - Login" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="120" y="55" width="400" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Window Controls -->
+        <mxCell id="close" value="X" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="665" y="57" width="15" height="15" as="geometry" />
+        </mxCell>
+        
+        <!-- Main Content Area -->
+        <mxCell id="content" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="110" width="560" height="420" as="geometry" />
+        </mxCell>
+        
+        <!-- Language Selector Section -->
+        <mxCell id="langLabel" value="Language:" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="150" y="130" width="100" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="langDropdown" value="[English ▼]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;strokeWidth=1;fontSize=10;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="260" y="130" width="120" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Login Form Container -->
+        <mxCell id="formBox" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f9f9f9;strokeColor=#999999;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="180" y="180" width="440" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- Form Title -->
+        <mxCell id="formTitle" value="User Authentication" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="180" y="190" width="440" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Username Label -->
+        <mxCell id="userLabel" value="Username:" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="200" y="230" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Username Field -->
+        <mxCell id="userField" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;strokeWidth=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="290" y="230" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Password Label -->
+        <mxCell id="passLabel" value="Password:" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="200" y="270" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Password Field -->
+        <mxCell id="passField" value="••••••••" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;strokeWidth=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="290" y="270" width="250" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Login Button -->
+        <mxCell id="loginBtn" value="Login" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e0e0e0;strokeColor=#999999;strokeWidth=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="260" y="320" width="80" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- Register Button -->
+        <mxCell id="registerBtn" value="Register" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e0e0e0;strokeColor=#999999;strokeWidth=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="360" y="320" width="80" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- Status Bar -->
+        <mxCell id="statusBar" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8e8e8;strokeColor=#999999;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="490" width="560" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="statusText" value="Status: Ready to connect | Server: localhost:12345" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="130" y="493" width="400" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Updated Notes: Smaller, no colors, simple student style -->
+        <mxCell id="note1" value="Loc: 4 langs, no restart" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;strokeWidth=1;fontSize=9;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="20" y="130" width="140" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="note2" value="Auth: SHA-384, UDP" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;strokeWidth=1;fontSize=9;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="20" y="240" width="140" height="25" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="note3" value="UI: Swing components" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;strokeWidth=1;fontSize=9;align=left;spacingLeft=5;" vertex="1" parent="1">
+          <mxGeometry x="20" y="350" width="140" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- Simple gray dashed arrows -->
+        <mxCell id="arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;dashed=1;strokeColor=#999999;" edge="1" parent="1" source="langDropdown" target="note1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;dashed=1;strokeColor=#999999;" edge="1" parent="1" source="formBox" target="note2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;dashed=1;strokeColor=#999999;" edge="1" parent="1" source="loginBtn" target="note3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Title for the diagram -->
+        <mxCell id="diagramTitle" value="Music Band Manager - Login Window Prototype" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="10" width="400" height="20" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

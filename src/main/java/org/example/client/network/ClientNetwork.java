@@ -2,6 +2,7 @@ package org.example.client.network;
 
 import org.example.common.command.Command;
 import org.example.common.command.Response;
+import org.example.common.model.MusicBand;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -9,6 +10,8 @@ import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.List;
+import java.util.ArrayList;
 
 public class ClientNetwork {
 
@@ -60,35 +63,19 @@ public class ClientNetwork {
                 }
             }
 
-            if (finalResponse != null && finalResponse.getMessage() != null && finalResponse.getMessage().startsWith("CHUNK:")) {
-                StringBuilder fullMessage = new StringBuilder();
-                int expectedChunks;
-                int receivedChunksCount = 0;
-                boolean isSuccess = true;
-                String[] chunkBuffer;
+            if (finalResponse != null) {
+                int totalChunks = finalResponse.getTotalChunks();
 
-                String message1 = finalResponse.getMessage();
-                int pipeIndex1 = message1.indexOf('|');
-                String header1 = message1.substring(0, pipeIndex1);
-                String payload1 = message1.substring(pipeIndex1 + 1);
+                if (totalChunks > 1) {
+                    List<MusicBand> allBands = new ArrayList<>();
+                    if (finalResponse.getBands() != null) {
+                        allBands.addAll(finalResponse.getBands());
+                    }
 
-                String[] parts1 = header1.split(":")[1].split("/");
-                int currentChunkNum1 = Integer.parseInt(parts1[0]);
+                    channel.socket().setSoTimeout(30000);
+                    int receivedChunks = 1;
 
-                expectedChunks = Integer.parseInt(parts1[1]);
-                chunkBuffer = new String[expectedChunks];
-
-                int index1 = currentChunkNum1 - 1;
-                chunkBuffer[index1] = payload1;
-                receivedChunksCount++;
-                if (currentChunkNum1 == 1) {
-                    isSuccess = finalResponse.isSuccess();
-                }
-
-                if (expectedChunks > 1) {
-                    channel.socket().setSoTimeout(60000);
-
-                    while (receivedChunksCount < expectedChunks) {
+                    while (receivedChunks < totalChunks) {
                         byte[] chunkBufferArray = new byte[MAX_BUFFER_SIZE];
                         java.net.DatagramPacket chunkPacket = new java.net.DatagramPacket(chunkBufferArray, chunkBufferArray.length);
 
@@ -96,47 +83,36 @@ public class ClientNetwork {
                             channel.socket().receive(chunkPacket);
                         } catch (SocketTimeoutException e) {
                             drainBuffer();
-                        return new Response(false, " Error: Server timeout during chunk reception");
+                            return new Response(false, "Server timeout during chunk reception");
                         }
 
                         byte[] chunkData = new byte[chunkPacket.getLength()];
                         System.arraycopy(chunkPacket.getData(), chunkPacket.getOffset(), chunkData, 0, chunkPacket.getLength());
 
-                        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(chunkData);
-                        ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
-                        Response chunkResponse = (Response) objectInputStream.readObject();
+                        try(ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(chunkData);
+                            ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream)){
 
-                        String message = chunkResponse.getMessage();
-                        if (message != null && message.startsWith("CHUNK:")) {
-                            int pipeIndex = message.indexOf('|');
-                            String header = message.substring(0, pipeIndex);
-                            String payload = message.substring(pipeIndex + 1);
+                            Response chunkResponse = (Response) objectInputStream.readObject();
 
-                            String[] parts = header.split(":")[1].split("/");
-                            int currentChunkNum = Integer.parseInt(parts[0]);
-
-                            int index = currentChunkNum - 1;
-                            if (index >= 0 && index < expectedChunks && chunkBuffer[index] == null) {
-                                chunkBuffer[index] = payload;
-                                receivedChunksCount++;
+                            if (chunkResponse.getBands() != null) {
+                            allBands.addAll(chunkResponse.getBands());
                             }
-                        } else {
-                            fullMessage.append(message != null ? message : "");
-                            break;
+                            receivedChunks++;
+                    } catch (ClassNotFoundException e) {
+                            return new Response(false, "Class not found during chunk reception: " + e.getMessage());
+                    } catch (IOException e) {
+                            return new Response(false, "IO error during chunk deserialization: " + e.getMessage());
                         }
                     }
-                }
 
-                for (String chunk : chunkBuffer) {
-                    if (chunk != null) {
-                        fullMessage.append(chunk);
-                    }
+                    finalResponse.setBand(allBands);
+                    finalResponse.setMessage(finalResponse.getMessage() + "(Loaded all " + totalChunks + " chunks)");
                 }
-                return new Response(isSuccess, fullMessage.toString());
             }
             return finalResponse;
-        } catch (IOException | ClassNotFoundException e) {
-            return new Response(false, " Network error: " + e.getMessage());
+
+            } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 

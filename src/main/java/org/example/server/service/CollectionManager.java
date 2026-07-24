@@ -123,7 +123,7 @@ public class CollectionManager {
         }
     }
 
-    public String insert(String key, MusicBand band, String ownerLogin) {
+    public String insert(String key, MusicBand band) {
         lock.writeLock().lock();
         try {
             if (collection.getMusicBandLinkedHashMap().containsKey(key)) {
@@ -131,14 +131,8 @@ public class CollectionManager {
             }
             if (band == null) return " Error: Element data cannot be null";
 
-            boolean dbSuccess = true;
-
-            if (dbSuccess) {
-                collection.getMusicBandLinkedHashMap().put(key, band);
-                return "✅ Music band has been added with ID " + band.getId();
-            } else {
-                return " Failed to insert band to database";
-            }
+            collection.getMusicBandLinkedHashMap().put(key, band);
+            return "✅ Music band has been added with ID " + band.getId();
         } finally {
             lock.writeLock().unlock();
         }
@@ -234,6 +228,9 @@ public class CollectionManager {
     public String clear(String ownerLogin) {
         lock.writeLock().lock();
         try {
+            if (ownerLogin == null || ownerLogin.isEmpty()) {
+                return " Invalid user.";
+            }
 
             List<String> keyToRemove = new ArrayList<>();
 
@@ -254,13 +251,9 @@ public class CollectionManager {
             boolean dbSuccess = BandDAO.deleteBandsByOwner(ownerLogin);
 
             if (dbSuccess) {
-
-                for (String key : keyToRemove) {
-                    collection.getMusicBandLinkedHashMap().remove(key);
-                }
-                return "✅ Successfully cleared your bands from the collection.";
+                return "✅ Successfully cleared " + keyToRemove.size() + " bands from memory and database.";
             } else {
-                return "❌ Failed to clear bands from database.";
+                return "⚠️ Cleared from memory, but failed to clear from database(check table name in BandDAO).";
             }
         } finally {
             lock.writeLock().unlock();
@@ -275,6 +268,33 @@ public class CollectionManager {
                     "Number of elements: " + collection.getMusicBandLinkedHashMap().size();
         } finally {
             lock.readLock().unlock();
+        }
+    }
+
+    public String removeById(int id, String ownerLogin) {
+        lock.writeLock().lock();
+        try {
+            String key = findKeyById(id);
+
+            if (key == null) {
+                return " Error: Music band with id " + id + " does not exist";
+            }
+
+            MusicBand band = collection.getMusicBandLinkedHashMap().get(key);
+            if (!band.getOwner().equals(ownerLogin)) {
+                return " Access Denied: You can only delete your own bands.";
+            }
+
+            boolean dbSuccess = BandDAO.deleteBand(band.getId(), ownerLogin);
+
+            if (dbSuccess) {
+                collection.getMusicBandLinkedHashMap().remove(key);
+                return " Music band with id " + id + " has been removed successfully";
+            } else {
+                return " Failed to delete band from database.";
+            }
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 

@@ -16,6 +16,10 @@ public class Response implements Serializable {
     private Object data;
     private List<MusicBand> bands;
 
+    private int chunkIndex = 1;
+    private int totalChunks = 1;
+    private List<Response> additionalChunks;
+
     public Response(boolean success, String message) {
         this.success = success;
         this.message = message;
@@ -63,6 +67,30 @@ public class Response implements Serializable {
 
     public void setBand(List<MusicBand> band) {
         this.bands = band;
+    }
+
+    public int getChunkIndex() {
+        return chunkIndex;
+    }
+
+    public void setChunkIndex(int chunkIndex) {
+        this.chunkIndex = chunkIndex;
+    }
+
+    public int getTotalChunks() {
+        return totalChunks;
+    }
+
+    public void setTotalChunks(int totalChunks) {
+        this.totalChunks = totalChunks;
+    }
+
+    public List<Response> getAdditionalChunks() {
+        return additionalChunks;
+    }
+
+    public void setAdditionalChunks(List<Response> additionalChunks) {
+        this.additionalChunks = additionalChunks;
     }
 
     @Override

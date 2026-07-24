@@ -24,7 +24,7 @@
     </root>
 
     <!-- Optional: Set specific log levels for your packages -->
-    <logger name="org.example.server" level="DEBUG"/>
-    <logger name="org.example.client" level="DEBUG"/>
+    <logger name="org.example.server" level="INFO"/>
+    <logger name="org.example.client" level="INFO"/>
 
 </configuration>

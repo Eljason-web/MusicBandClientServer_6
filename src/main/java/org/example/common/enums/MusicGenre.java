@@ -5,6 +5,7 @@ import java.io.Serializable;
 public enum MusicGenre implements Serializable {
     RAP,
     GOSPEL,
+    POP,
     ROCK,
     HIP_POP,
     JAZZ,

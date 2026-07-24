@@ -12,7 +12,7 @@ public class Command implements Serializable {
     private String commandType;
     private String key;
     private MusicBand musicBand;
-    private String argument;
+    private Object argument;
     private Integer id;
 
     private String login;
@@ -59,11 +59,11 @@ public class Command implements Serializable {
         this.musicBand = musicBand;
     }
 
-    public String getArgument() {
+    public Object getArgument() {
         return argument;
     }
 
-    public void setArgument(String argument) {
+    public void setArgument(Object argument) {
         this.argument = argument;
     }
 
